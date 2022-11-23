@@ -7,6 +7,7 @@ A = np.array([15600, 18760, 17610, 19170])
 B = np.array([7540, 2750, 14630, 610])
 C = np.array([20140, 18610, 13480, 18390])
 t = np.array([0.07074,0.07220,0.07690,0.07242])
+
 c = 299792.458
 c2 = c*c
 RHO = 26570
@@ -91,7 +92,7 @@ def find_abc(phi, theta):
         new_a[i] = RHO*np.sin(phi[i])*np.cos(theta[i])
         new_b[i] = RHO*np.sin(phi[i])*np.sin(theta[i])
         new_c[i] = RHO*np.cos(phi[i])
-        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_t[i]-initial[2])**2))/c
+        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_c[i]-initial[2])**2))/c
     return new_a, new_b, new_c, new_t
 
 def prob3():
