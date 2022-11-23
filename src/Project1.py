@@ -78,10 +78,14 @@ def gaussNewton(x0, ABCT_arr, tol):
 
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
+    print("Problem 1")
+    print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0], x[1], x[2], x[3]))
+    print("-"*55)
     return x
     
 
 def find_abc(phi, theta): 
+    '''This really is the requirements for problem 2'''
     new_a, new_b, new_c, new_t = np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size)
     for i in range(phi.size):
         new_a[i] = RHO*np.sin(phi[i])*np.cos(theta[i])
