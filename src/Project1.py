@@ -208,15 +208,6 @@ if __name__ == "__main__":
     print()
     printLocation(gaussNewton(initial, ABCT, 10e-8))
     print()
-    A = np.array([15600, 18760, 17610, 19170])
-    B = np.array([7540, 2750, 14630, 610])
-    C = np.array([20140, 18610, 13480, 18390])
-    t = np.array([0.07074,0.07220,0.07690,0.07242])
-    c = 299792.458
-    c2 = c*c
-    RHO = 26570
-
-ABCT = np.matrix([A, B, C, t])
     printLocation(gaussNewton(initial, ABCT, 10e-8))
 
     # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
