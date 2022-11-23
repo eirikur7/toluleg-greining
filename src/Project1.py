@@ -18,21 +18,11 @@ def F(inArr, ABCT_array):
     y = inArr[1]
     z = inArr[2]
     d = inArr[3]
-    f1 = (x-ABCT_array[0,0])**2 + (y-ABCT_array[1,0])**2 + (z-ABCT_array[2,0])**2 - c2*((ABCT_array[3,0]-d)**2)
-    f2 = (x-ABCT_array[0,1])**2 + (y-ABCT_array[1,1])**2 + (z-ABCT_array[2,1])**2 - c2*((ABCT_array[3,1]-d)**2)
-    f3 = (x-ABCT_array[0,2])**2 + (y-ABCT_array[1,2])**2 + (z-ABCT_array[2,2])**2 - c2*((ABCT_array[3,2]-d)**2)
-    f4 = (x-ABCT_array[0,3])**2 + (y-ABCT_array[1,3])**2 + (z-ABCT_array[2,3])**2 - c2*((ABCT_array[3,3]-d)**2)
-    return np.array([f1,f2,f3,f4])
-
-def DF_old(inArr, ABCT_array):
-    x= inArr[0]
-    y= inArr[1]
-    z= inArr[2]
-    d= inArr[3]
-    return np.matrix([[2*(x-ABCT_array[0,0]), 2*(y-ABCT_array[1,0]), 2*(z-ABCT_array[2,0]), 2*c2*(ABCT_array[3,0]-d)],
-                      [2*(x-ABCT_array[0,1]), 2*(y-ABCT_array[1,1]), 2*(z-ABCT_array[2,1]), 2*c2*(ABCT_array[3,1]-d)],
-                      [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
-                      [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
+    row = ABCT_array.shape[0]
+    ret_matrix = np.zeros(row)
+    for i in range(row):
+        ret_matrix[i] = (x-ABCT_array[0,i])**2 + (y-ABCT_array[1,i])**2 + (z-ABCT_array[2,i])**2 - c2*((ABCT_array[3,i]-d)**2)
+    return ret_matrix
 
 def DF(inArr, ABCT_array):
     x= inArr[0]
@@ -47,7 +37,6 @@ def DF(inArr, ABCT_array):
         ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
         ret_matrix[i,2] = 2*(z-ABCT_array[2,i])
         ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
-
     return ret_matrix
 
 
@@ -78,7 +67,7 @@ def gaussNewton(x0, ABCT_arr, tol):
 
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
-    print("Problem 1")
+    print("Problem 1 finished")
     print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0], x[1], x[2], x[3]))
     print("-"*55)
     return x
@@ -105,7 +94,7 @@ def prob3():
     distance_incorr_x = np.sqrt(incorr_x[0]**2 + incorr_x[1]**2 + incorr_x[2]**2)
     distance_corr_x = np.sqrt(corr_x[0]**2 + corr_x[1]**2 + corr_x[2]**2)
     print("Problem 3")
-    print("Real = {:f} km, Wrong = {:f} , error = {:f} km".format(distance_corr_x,distance_incorr_x,abs(distance_incorr_x-distance_corr_x)))
+    print("Real = {:f} km, Wrong = {:f} , error = {:.4e} km".format(distance_corr_x,distance_incorr_x,abs(distance_incorr_x-distance_corr_x)))
     print("-"*55)
 
 
@@ -139,7 +128,7 @@ def prob4():
 
     print("Problem 4:")
     prob4SolError = abs(correct_distance - incorrect_distance_cur)
-    print("Real={} km, Wrong={} km, Error={} km".format(round(correct_distance,6), round(incorrect_distance_cur,6), prob4SolError))
+    print("Real={} km, Wrong={} km, Error={:.4e} km".format(round(correct_distance,6), round(incorrect_distance_cur,6), prob4SolError))
     print("-"*55)
     return incorrect_values, correct_values
 
@@ -189,7 +178,7 @@ def prob6():
         if( abs(incorrect_distance - correct_distance ) > abs(incorrect_distance_cur - correct_distance) ):
             incorrect_distance_cur = incorrect_distance
 
-    print("Problem 4:")
+    print("Problem 4")
     prob4SolError = abs(correct_distance - incorrect_distance_cur)
     print("Real={} km, Wrong={} km, Error={} km".format(round(correct_distance,6), round(incorrect_distance_cur,6), prob4SolError))
     print("-"*55)
@@ -212,6 +201,8 @@ if __name__ == "__main__":
     theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
     prob1(initial, ABCT, 10e-8)
+    print("Problem 2, finished")
+    print("-"*55)
     prob3()
     prob4()
     prob5()
