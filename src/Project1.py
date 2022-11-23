@@ -7,6 +7,7 @@ A = np.array([15600, 18760, 17610, 19170])
 B = np.array([7540, 2750, 14630, 610])
 C = np.array([20140, 18610, 13480, 18390])
 t = np.array([0.07074,0.07220,0.07690,0.07242])
+
 c = 299792.458
 c2 = c*c
 RHO = 26570
@@ -39,7 +40,6 @@ def DF(inArr, ABCT_array):
     y= inArr[1]
     z= inArr[2]
     d= inArr[3]
-
     row = ABCT_array.shape[0]
     col = ABCT_array.shape[1]
     ret_matrix = np.zeros((row, col))
@@ -51,7 +51,7 @@ def DF(inArr, ABCT_array):
 
     return ret_matrix
 
-
+#----------------------ANALYSIS METHODS----------------------#
 def newtonMethod(x0, ABCT_arr, tol):
     x=x0
     oldx =x + 2*tol
@@ -60,6 +60,27 @@ def newtonMethod(x0, ABCT_arr, tol):
         s=LA.solve(DF(x, ABCT_arr),F(x, ABCT_arr))
         x=x-s
     return(x)
+
+def bisection(f,a,b,tol):
+    '''gert ráð fyrir að búið se að skilgreina f(x) fyrir utan t.d.
+    def f(x):
+        return(x**2-2)
+    '''
+    if f(a)*f(b) >= 0:
+        print("Bisection method fails.")
+        return None
+    else:
+        fa=f(a)
+        while (b-a)/2>tol:
+            c=(a+b)/2
+            fc=f(c)
+            if fc==0:break
+            if fc*fa<0:
+                b=c
+            else:
+                a=c
+                fa=fc
+    return((a+b)/2)
 
 def gaussNewton(x0, ABCT_arr, tol):
     x = np.matrix.reshape(x0, (4,1))
@@ -76,19 +97,24 @@ def gaussNewton(x0, ABCT_arr, tol):
         x = x-s
         iterations += 1
     return x
+#----------------------PROBLEMS----------------------#
 
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
+    print("Problem 1")
+    print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0], x[1], x[2], x[3]))
+    print("-"*55)
     return x
     
 
 def find_abc(phi, theta): 
+    '''This really is the requirements for problem 2'''
     new_a, new_b, new_c, new_t = np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size)
     for i in range(phi.size):
         new_a[i] = RHO*np.sin(phi[i])*np.cos(theta[i])
         new_b[i] = RHO*np.sin(phi[i])*np.sin(theta[i])
         new_c[i] = RHO*np.cos(phi[i])
-        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_t[i]-initial[2])**2))/c
+        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_c[i]-initial[2])**2))/c
     return new_a, new_b, new_c, new_t
 
 def prob3():
@@ -192,6 +218,9 @@ def prob6():
     print("-"*55)
     return incorrect_values, correct_values
 
+def prob7():
+    pass
+
 def printLocation(ABCT_arr):
     str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
     try:
@@ -201,32 +230,19 @@ def printLocation(ABCT_arr):
 
 if __name__ == "__main__":
     
-
+ 
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
-    printLocation(prob1(initial, ABCT, 10e-8))
-    print()
-    printLocation(gaussNewton(initial, ABCT, 10e-8))
-    print()
-    A = np.array([15600, 18760, 17610, 19170])
-    B = np.array([7540, 2750, 14630, 610])
-    C = np.array([20140, 18610, 13480, 18390])
-    t = np.array([0.07074,0.07220,0.07690,0.07242])
-    c = 299792.458
-    c2 = c*c
-    RHO = 26570
 
-ABCT = np.matrix([A, B, C, t])
-    printLocation(gaussNewton(initial, ABCT, 10e-8))
 
-    # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
+    theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
+    phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
+    prob1(initial, ABCT, 10e-8)
+    prob3()
+    prob4()
+    prob5()
+    #prob6()
+    theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
+    new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
-    # prob3()
-    # prob4()
-    # prob5()
-    
-    # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
-
-    # new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
+    new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
