@@ -12,26 +12,52 @@ c = 299792.458
 c2 = c*c
 ABCT = np.matrix([A, B, C, t])
 
+# def F(inArr, ABCT_array):
+#     x = inArr[0]
+#     y = inArr[1]
+#     z = inArr[2]
+#     d = inArr[3]
+#     f1 = (x-ABCT_array[0,0])**2 + (y-ABCT_array[1,0])**2 + (z-ABCT_array[2,0])**2 - c2*((ABCT_array[3,0]-d)**2)
+#     f2 = (x-ABCT_array[0,1])**2 + (y-ABCT_array[1,1])**2 + (z-ABCT_array[2,1])**2 - c2*((ABCT_array[3,1]-d)**2)
+#     f3 = (x-ABCT_array[0,2])**2 + (y-ABCT_array[1,2])**2 + (z-ABCT_array[2,2])**2 - c2*((ABCT_array[3,2]-d)**2)
+#     f4 = (x-ABCT_array[0,3])**2 + (y-ABCT_array[1,3])**2 + (z-ABCT_array[2,3])**2 - c2*((ABCT_array[3,3]-d)**2)
+#     return np.array([f1,f2,f3,f4])
+
 def F(inArr, ABCT_array):
     x = inArr[0]
     y = inArr[1]
     z = inArr[2]
     d = inArr[3]
-    f1 = (x-ABCT_array[0,0])**2 + (y-ABCT_array[1,0])**2 + (z-ABCT_array[2,0])**2 - c2*((ABCT_array[3,0]-d)**2)
-    f2 = (x-ABCT_array[0,1])**2 + (y-ABCT_array[1,1])**2 + (z-ABCT_array[2,1])**2 - c2*((ABCT_array[3,1]-d)**2)
-    f3 = (x-ABCT_array[0,2])**2 + (y-ABCT_array[1,2])**2 + (z-ABCT_array[2,2])**2 - c2*((ABCT_array[3,2]-d)**2)
-    f4 = (x-ABCT_array[0,3])**2 + (y-ABCT_array[1,3])**2 + (z-ABCT_array[2,3])**2 - c2*((ABCT_array[3,3]-d)**2)
-    return np.array([f1,f2,f3,f4])
+    row = ABCT_array.shape[0]
+    ret_matrix = np.zeros(row)
+    for i in range(row):
+        ret_matrix[i] = (x-ABCT_array[0,i])**2 + (y-ABCT_array[1,i])**2 + (z-ABCT_array[2,i])**2 - c2*((ABCT_array[3,i]-d)**2)
+    return ret_matrix
+
+# def DF(inArr, ABCT_array):
+#     x= inArr[0]
+#     y= inArr[1]
+#     z= inArr[2]
+#     d= inArr[3]
+#     return np.matrix([[2*(x-ABCT_array[0,0]), 2*(y-ABCT_array[1,0]), 2*(z-ABCT_array[2,0]), 2*c2*(ABCT_array[3,0]-d)],
+#                       [2*(x-ABCT_array[0,1]), 2*(y-ABCT_array[1,1]), 2*(z-ABCT_array[2,1]), 2*c2*(ABCT_array[3,1]-d)],
+#                       [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
+#                       [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
 
 def DF(inArr, ABCT_array):
     x= inArr[0]
     y= inArr[1]
     z= inArr[2]
     d= inArr[3]
-    return np.matrix([[2*(x-ABCT_array[0,0]), 2*(y-ABCT_array[1,0]), 2*(z-ABCT_array[2,0]), 2*c2*(ABCT_array[3,0]-d)],
-                      [2*(x-ABCT_array[0,1]), 2*(y-ABCT_array[1,1]), 2*(z-ABCT_array[2,1]), 2*c2*(ABCT_array[3,1]-d)],
-                      [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
-                      [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
+    row = ABCT_array.shape[0]
+    col = ABCT_array.shape[1]
+    ret_matrix = np.zeros((row, col))
+    for i in range(row):
+        ret_matrix[i,0] = 2*(x-ABCT_array[0,i])
+        ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
+        ret_matrix[i,2] = 2*(z-ABCT_array[2,i])
+        ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
+    return ret_matrix
 
 def newtonMethod(x0, ABCT_arr, tol, cap=None):
     x=x0
