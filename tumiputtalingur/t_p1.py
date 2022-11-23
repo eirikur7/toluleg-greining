@@ -23,7 +23,7 @@ def F(inArr, ABCT_Matrix):
     f4 = (x-ABCT_Matrix[0,3])**2 + (y-ABCT_Matrix[1,3])**2 + (z-ABCT_Matrix[2,3])**2 - c2*((ABCT_Matrix[3,3]-d)**2)
     return np.array([f1,f2,f3,f4])
 
-def DF(inArr, ABCT_array):
+def DF_old(inArr, ABCT_array):
     x= inArr[0]
     y= inArr[1]
     z= inArr[2]
@@ -33,6 +33,23 @@ def DF(inArr, ABCT_array):
                       [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
                       [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
 
+def DF(inArr, ABCT_array):
+    x= inArr[0]
+    y= inArr[1]
+    z= inArr[2]
+    d= inArr[3]
+    row = ABCT_array.shape[0]
+    col = ABCT_array.shape[1]
+    ret_matrix = np.zeros((row, col))
+    for i in range(row):
+        ret_matrix[i,0] = 2*(x-ABCT_array[0,i])
+        ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
+        ret_matrix[i,2] = 2*(z-ABCT_array[2,i])
+        ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
+
+    return ret_matrix
+
+#-- Analysis Methods
 def newtonMethod(x0, ABCT_arr, tol):
     x=x0
     oldx =x + 2*tol
@@ -63,6 +80,23 @@ def bisection(f,a,b,tol):
                 fa=fc
     return((a+b)/2)
 
+def gaussNewton(x0, ABCT_arr, tol):
+    x = np.matrix.reshape(x0, (4,1))
+    oldx = x + 2*tol
+    iterations = 0
+    while LA.norm(x-oldx, np.inf) > tol:
+        oldx = x
+        jacobi = DF(x, ABCT_arr)
+        jacobiTrans = np.matrix.transpose(jacobi)
+        f = F(x, ABCT_arr)
+        fTrans = np.matrix.transpose(np.reshape(f, (1,4)))
+        test = np.matmul(jacobiTrans, fTrans)
+        s = LA.solve(np.matmul(jacobiTrans, jacobi), test)
+        x = x-s
+        iterations += 1
+    return x
+
+#-- Problems
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
     print("Problem 1")

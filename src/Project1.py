@@ -7,6 +7,7 @@ A = np.array([15600, 18760, 17610, 19170])
 B = np.array([7540, 2750, 14630, 610])
 C = np.array([20140, 18610, 13480, 18390])
 t = np.array([0.07074,0.07220,0.07690,0.07242])
+
 c = 299792.458
 c2 = c*c
 RHO = 26570
@@ -39,7 +40,7 @@ def DF(inArr, ABCT_array):
         ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
     return ret_matrix
 
-
+#----------------------ANALYSIS METHODS----------------------#
 def newtonMethod(x0, ABCT_arr, tol):
     x=x0
     oldx =x + 2*tol
@@ -48,6 +49,27 @@ def newtonMethod(x0, ABCT_arr, tol):
         s=LA.solve(DF(x, ABCT_arr),F(x, ABCT_arr))
         x=x-s
     return(x)
+
+def bisection(f,a,b,tol):
+    '''gert ráð fyrir að búið se að skilgreina f(x) fyrir utan t.d.
+    def f(x):
+        return(x**2-2)
+    '''
+    if f(a)*f(b) >= 0:
+        print("Bisection method fails.")
+        return None
+    else:
+        fa=f(a)
+        while (b-a)/2>tol:
+            c=(a+b)/2
+            fc=f(c)
+            if fc==0:break
+            if fc*fa<0:
+                b=c
+            else:
+                a=c
+                fa=fc
+    return((a+b)/2)
 
 def gaussNewton(x0, ABCT_arr, tol):
     x = np.matrix.reshape(x0, (4,1))
@@ -64,6 +86,7 @@ def gaussNewton(x0, ABCT_arr, tol):
         x = x-s
         iterations += 1
     return x
+#----------------------PROBLEMS----------------------#
 
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
@@ -80,7 +103,7 @@ def find_abc(phi, theta):
         new_a[i] = RHO*np.sin(phi[i])*np.cos(theta[i])
         new_b[i] = RHO*np.sin(phi[i])*np.sin(theta[i])
         new_c[i] = RHO*np.cos(phi[i])
-        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_t[i]-initial[2])**2))/c
+        new_t[i] = (np.sqrt((new_a[i]-initial[0])**2 + (new_b[i]-initial[1])**2+(new_c[i]-initial[2])**2))/c
     return new_a, new_b, new_c, new_t
 
 def prob3():
@@ -183,6 +206,9 @@ def prob6():
     print("Real={} km, Wrong={} km, Error={} km".format(round(correct_distance,6), round(incorrect_distance_cur,6), prob4SolError))
     print("-"*55)
     return incorrect_values, correct_values
+
+def prob7():
+    pass
 
 def printLocation(ABCT_arr):
     str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
