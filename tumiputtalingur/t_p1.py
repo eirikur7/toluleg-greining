@@ -170,12 +170,11 @@ if __name__ == "__main__":
  
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
-    prob1(initial, ABCT, 10e-8)
 
 
     theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-
+    prob1(initial, ABCT, 10e-8)
     prob3()
     prob4()
     prob5()

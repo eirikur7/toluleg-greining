@@ -39,7 +39,6 @@ def DF(inArr, ABCT_array):
     y= inArr[1]
     z= inArr[2]
     d= inArr[3]
-
     row = ABCT_array.shape[0]
     col = ABCT_array.shape[1]
     ret_matrix = np.zeros((row, col))
@@ -201,23 +200,19 @@ def printLocation(ABCT_arr):
 
 if __name__ == "__main__":
     
-
+ 
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
-    printLocation(prob1(initial, ABCT, 10e-8))
-    print()
-    printLocation(gaussNewton(initial, ABCT, 10e-8))
-    print()
-    printLocation(gaussNewton(initial, ABCT, 10e-8))
 
-    # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
 
-    # prob3()
-    # prob4()
-    # prob5()
-    
-    # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
+    theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
+    phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
+    prob1(initial, ABCT, 10e-8)
+    prob3()
+    prob4()
+    prob5()
+    #prob6()
+    theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
+    new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
-    # new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
+    new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
