@@ -33,14 +33,14 @@ def DF_old(inArr, ABCT_array):
                       [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
                       [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
 
-def DF(inArr, ABCT_array):
+def DF(inArr, ABCT_array,size=4):
     x= inArr[0]
     y= inArr[1]
     z= inArr[2]
     d= inArr[3]
     row = ABCT_array.shape[0]
     col = ABCT_array.shape[1]
-    ret_matrix = np.zeros((row, col))
+    ret_matrix = np.zeros((size, col))
     for i in range(row):
         ret_matrix[i,0] = 2*(x-ABCT_array[0,i])
         ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
@@ -181,7 +181,7 @@ def prob5():
     theta_orig = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
     theta = np.array([-((np.pi)/4)-diffence,-((np.pi)/4)+diffence,-((np.pi)/4)-diffence,-((np.pi)/4)+diffence])
     phi = np.array([((np.pi)/8)-diffence-diffence2,((np.pi)/8)-diffence+diffence2,((np.pi)/8)+diffence-diffence2,((np.pi)/8)+diffence+diffence2])
-
+    
     close_a,close_b,close_c,close_t = find_abc(phi, theta)
     a,b,c,t = find_abc(phi_orig, theta_orig)
 
