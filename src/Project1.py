@@ -43,6 +43,11 @@ def DF(inArr, ABCT_array):
         ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
     return ret_matrix
 
+def calc_pos_error(wrongPos, dimentional=2, correctPos=correct_position):
+    if dimentional == 2:
+        return np.sqrt((correctPos[0] - wrongPos[0,0])**2 + (correctPos[1] - wrongPos[1,0])**2 + (correctPos[2] - wrongPos[2,0])**2)
+    elif dimentional == 1:
+        return np.sqrt((correctPos[0] - wrongPos[0])**2 + (correctPos[1] - wrongPos[1])**2 + (correctPos[2] - wrongPos[2])**2)
 #----------------------ANALYSIS METHODS----------------------#
 def newtonMethod(x0, ABCT_arr, tol, cap=None):
     x0 = np.reshape(x0, (x0.size, 1))
@@ -98,11 +103,7 @@ def gaussNewton(x0, ABCT_arr, tol, cap=None):
         iterations += 1
     return x
 
-def calc_pos_error(wrongPos, dimentional=2, correctPos=correct_position):
-    if dimentional == 2:
-        return np.sqrt((correctPos[0] - wrongPos[0,0])**2 + (correctPos[1] - wrongPos[1,0])**2 + (correctPos[2] - wrongPos[2,0])**2)
-    elif dimentional == 1:
-        return np.sqrt((correctPos[0] - wrongPos[0])**2 + (correctPos[1] - wrongPos[1])**2 + (correctPos[2] - wrongPos[2])**2)
+
 #----------------------PROBLEMS----------------------#
 
 def prob1(x0, ABCT_arr, tol):
@@ -187,33 +188,9 @@ def prob5():
     errorDistance = calc_pos_error(x)
 
     print("Problem 5")
-    print("wrongPos=({:.2f},{:.2f},{:.2f})error = {:f} km".format(x[0,0], x[1,0], x[2,0], errorDistance))
+    print("wrongPos=({:.2f},{:.2f},{:.2f}) error= {:4e} km".format(x[0,0], x[1,0], x[2,0], errorDistance))
     print("-"*55)
 
-def randomAnglesError(sets, error, nrSatilites):
-    i = 0
-    measuring_array = np.zeros((sets))
-    angles_arry = np.zeros((sets, nrSatilites*2))
-    while i < sets:
-        phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
-        theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
-        new_a, new_b, new_c, original_t = find_abc(phi_arr, theta_arr)
-        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-        correct_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
-
-        if(correct_xyzd.size > 0):
-            new_a, new_b, new_c, new_t = find_abc(phi_arr + error, theta_arr + error)
-            ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-            incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
-            if(incorrect_xyzd.size > 0):
-                correct_distance   = np.sqrt((correct_xyzd[0]**2) + (correct_xyzd[1]**2) + (correct_xyzd[2]**2))
-                incorrect_distance = np.sqrt((incorrect_xyzd[0]**2) + (incorrect_xyzd[1]**2) + (incorrect_xyzd[2]**2))
-                measuring_array[i] = abs(correct_distance - incorrect_distance)
-                angles_arry[i][0:nrSatilites] = phi_arr
-                angles_arry[i][nrSatilites:] = theta_arr
-                i += 1
-
-    return measuring_array, angles_arry
 
 def randomAnglesError(sets, error, nrSatilites):
     i = 0
@@ -225,7 +202,6 @@ def randomAnglesError(sets, error, nrSatilites):
         new_a, new_b, new_c, original_t = find_abc(phi_arr, theta_arr)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
 
-        # if(correct_xyzd.size > 0):
         new_a, new_b, new_c, new_t = find_abc(phi_arr + error, theta_arr + error)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
         incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
@@ -241,7 +217,7 @@ def prob6():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 4)
     # if running_once:
     print("PROBLEM 6:")
-    print("Error: max={:.4e}, min={:.4e}, average={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.std(measuring_array)))
+    print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
@@ -258,7 +234,6 @@ def prob7():
 def f(y):
     measuring_error, angles = randomAnglesError(sets=100, error=y, nrSatilites=4)
     return np.max(measuring_error) - 0.0001
-    # return prob6(error = y,running_once=False) - 0.0001
 
 def printLocation(ABCT_arr):
     str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
@@ -270,7 +245,7 @@ def printLocation(ABCT_arr):
 def prob8():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 5)
     print("PROBLEM 8:")
-    print("Error: max={:.4e}, min={:.4e}, average={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.std(measuring_array)))
+    print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
