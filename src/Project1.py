@@ -207,20 +207,52 @@ def randomAnglesError(sets, error, nrSatilites):
 
     
 
-def prob6():
-    measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 4)
-    print("PROBLEM 6:")
-    print("-"*55)
-    print("Error: max={}, min={}, average={}, std={}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.std(measuring_array)))
-    max_index = np.argmax(measuring_array)
-    # print(angles_arry[max_index][0:4] - (np.pi/2))
-    # print(angles_arry[max_index][4:]  - (2*np.pi))
-    plt.hist(measuring_array, 500, range=(0, 0.01))
-    plt.show()
-    print("-"*55)
+def randomAnglesError(sets, error, nrSatilites):
+    i = 0
+    measuring_array = np.zeros((sets))
+    angles_arry = np.zeros((sets, nrSatilites*2))
+    while i < sets:
+        phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
+        theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
+        new_a, new_b, new_c, original_t = find_abc(phi_arr, theta_arr)
+        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
+        correct_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
+        
+        if(correct_xyzd.size > 0):
+            new_a, new_b, new_c, new_t = find_abc(phi_arr + error, theta_arr + error)
+            ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
+            incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
+            if(incorrect_xyzd.size > 0):
+                correct_distance   = np.sqrt((correct_xyzd[0]**2) + (correct_xyzd[1]**2) + (correct_xyzd[2]**2))
+                incorrect_distance = np.sqrt((incorrect_xyzd[0]**2) + (incorrect_xyzd[1]**2) + (incorrect_xyzd[2]**2))
+                measuring_array[i] = abs(correct_distance - incorrect_distance)
+                angles_arry[i][0:nrSatilites] = phi_arr
+                angles_arry[i][nrSatilites:] = theta_arr
+                i += 1
+
+    return measuring_array, angles_arry
+
+def prob6(error=10e-8, running_once = True):
+    measuring_array, angles_arry = randomAnglesError(100, error, 4)
+    if running_once:
+        print("PROBLEM 6:")
+        print("-"*55)
+        print("Error: max={}, min={}, average={}, std={}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.std(measuring_array)))
+        max_index = np.argmax(measuring_array)
+        # print(angles_arry[max_index][0:4] - (np.pi/2))
+        # print(angles_arry[max_index][4:]  - (2*np.pi))
+        plt.hist(measuring_array, 500, range=(0, 0.01))
+        plt.show()
+        print("-"*55)
+    return np.max(measuring_array)
 
 def prob7():
-    pass
+    print(bisection(f, 1e-14, 1e-8, 10**(-6)))
+    print("Problem 7")
+    print("-"*55)
+
+def f(y):
+    return prob6(error = y,running_once=False) - 0.0001
 
 def printLocation(ABCT_arr):
     str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
@@ -244,7 +276,8 @@ if __name__ == "__main__":
     # prob3()
     # prob4()
     # prob5()
-    prob6(10000, 500, 10e-8)
+    # prob6(10000, 500, 10e-8)
+    prob7()
     theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 

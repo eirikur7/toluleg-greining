@@ -33,14 +33,14 @@ def DF_old(inArr, ABCT_array):
                       [2*(x-ABCT_array[0,2]), 2*(y-ABCT_array[1,2]), 2*(z-ABCT_array[2,2]), 2*c2*(ABCT_array[3,2]-d)], 
                       [2*(x-ABCT_array[0,3]), 2*(y-ABCT_array[1,3]), 2*(z-ABCT_array[2,3]), 2*c2*(ABCT_array[3,3]-d)]])
 
-def DF(inArr, ABCT_array,size=4):
+def DF(inArr, ABCT_array):
     x= inArr[0]
     y= inArr[1]
     z= inArr[2]
     d= inArr[3]
     row = ABCT_array.shape[0]
     col = ABCT_array.shape[1]
-    ret_matrix = np.zeros((size, col))
+    ret_matrix = np.zeros((row, col))
     for i in range(row):
         ret_matrix[i,0] = 2*(x-ABCT_array[0,i])
         ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
