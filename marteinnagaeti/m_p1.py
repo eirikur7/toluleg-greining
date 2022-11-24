@@ -146,12 +146,7 @@ def prob4():
     return incorrect_values, correct_values
 
 def prob5():
-    phi_orig = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    theta_orig = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    a,b,c,t = find_abc(phi_orig, theta_orig)
-    corr_x = newtonMethod(initial, np.array([a, b, c, t]), 10**(-8))
-    
-    distance_corr_x = np.sqrt(corr_x[0]**2 + corr_x[1]**2 + corr_x[2]**2)
+
     total_diff_array = np.zeros(9)
     error_array = np.zeros(9)
     for i in range(9):
@@ -161,16 +156,16 @@ def prob5():
         phi_close = np.array([((np.pi)/8)-diffence-diffence2,((np.pi)/8)-diffence+diffence2,((np.pi)/8)+diffence-diffence2,((np.pi)/8)+diffence+diffence2])
         close_a,close_b,close_c,close_t = find_abc(phi_close, theta_close)
         close_x = newtonMethod(initial, np.array([close_a, close_b, close_c, close_t]), 10**(-8))
-        distance_incorr_x = np.sqrt(close_x[0]**2 + close_x[1]**2 + close_x[2]**2)
 
         total_diff_array[i] = diffence
-        error_array[i] = abs(distance_corr_x - distance_incorr_x)
+        error_array[i] = np.sqrt((close_x[0]-initial[0])**2 + (close_x[1]-initial[1])**2 + (close_x[2]-initial[2])**2)
 
 
     # total_diff_array = np.log10(total_diff_array)
     plt.plot(np.flip(np.log10(total_diff_array)*-1), np.flip(error_array), 'ro')
     plt.ylabel('error[km]')
     plt.xlabel('angle difference[10^(-x)]')
+    plt.title('Problem 5')
     
     plt.show()
     # print("Problem 5")

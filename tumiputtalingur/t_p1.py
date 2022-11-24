@@ -124,14 +124,12 @@ def prob3():
     phi_orig = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     theta_orig = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
     phi_w_errors = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    corr_a, corr_b, corr_c, corr_t = find_abc(phi_orig, theta_orig)
-    incorr_a, incorr_b, incorr_c, incorr_t = find_abc(phi_w_errors, theta_orig)
-    corr_x = newtonMethod(initial,  np.array([corr_a, corr_b, corr_c, corr_t]),10**(-8))
+    _, _, _, corr_t = find_abc(phi_orig, theta_orig)
+    incorr_a, incorr_b, incorr_c, _ = find_abc(phi_w_errors, theta_orig)
     incorr_x = newtonMethod(initial, np.array([incorr_a, incorr_b, incorr_c, corr_t]), 10**(-8))
-    distance_incorr_x = np.sqrt(incorr_x[0]**2 + incorr_x[1]**2 + incorr_x[2]**2)
-    distance_corr_x = np.sqrt(corr_x[0]**2 + corr_x[1]**2 + corr_x[2]**2)
+    distance_incorr_x = np.sqrt((initial[0]-incorr_x[0])**2 + (initial-incorr_x[1])**2 + (initial[2]-incorr_x[2])**2)
     print("Problem 3")
-    print("Real = {:f} km, Wrong = {:f} , error = {:f} km".format(distance_corr_x,distance_incorr_x,abs(distance_incorr_x-distance_corr_x)))
+    print("x = {}, y={}, z={}, error = {:e} km".format(incorr_x[0],incorr_x[1],incorr_x[2],distance_incorr_x[0]))
     print("-"*55)
 
 
@@ -244,9 +242,10 @@ def randomAnglesError(sets, error, nrSatilites):
             ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
             incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
             if(incorrect_xyzd.size > 0):
-                correct_distance   = np.sqrt((correct_xyzd[0]**2) + (correct_xyzd[1]**2) + (correct_xyzd[2]**2))
-                incorrect_distance = np.sqrt((incorrect_xyzd[0]**2) + (incorrect_xyzd[1]**2) + (incorrect_xyzd[2]**2))
-                measuring_array[i] = abs(correct_distance - incorrect_distance)
+                # correct_distance   = np.sqrt((correct_xyzd[0]**2) + (correct_xyzd[1]**2) + (correct_xyzd[2]**2))
+                incorrect_distance = np.sqrt(((initial[0]-incorrect_xyzd[0])**2) + ((initial[1]-incorrect_xyzd[1])**2) + (initial[2]-incorrect_xyzd[2]**2))
+                # measuring_array[i] = abs(correct_distance - incorrect_distance)
+                measuring_array[i] = incorrect_distance
                 angles_arry[i][0:nrSatilites] = phi_arr
                 angles_arry[i][nrSatilites:] = theta_arr
                 i += 1
@@ -288,12 +287,12 @@ if __name__ == "__main__":
 
     theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    prob1(initial, ABCT, 10e-8)
+    # prob1(initial, ABCT, 10e-8)
     prob3()
-    prob4()
-    prob5()
-    prob6(10e-8 ,True)
-    prob7()
+    # prob4()
+    # prob5()
+    # prob6(10e-8 ,True)
+    # prob7()
     #prob6()
     theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
