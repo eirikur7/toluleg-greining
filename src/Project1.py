@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
+from math import pi
 
 initial = np.array([0,0,6370,0])
 
@@ -277,25 +278,65 @@ def prob8():
     plt.show()
     print("-"*55)
 
+def calculateError(pos1, pos2):
+    return np.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
+ 
+def test_sporbaug():
+    theta_arr = np.array([0, 0, pi])
+    phi_arr1 = np.array([pi/2, 0, pi/2]) 
+    new_a, new_b, new_c, original_t = find_abc(phi_arr1, theta_arr)
+    ABCT_arr1 = np.matrix([new_a, new_b, new_c, original_t])
+
+    phi_arr2 = np.array([pi/4, 0, pi/4])
+    new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
+    ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
+   
+    pos1 = gaussNewton(initial, ABCT_arr1, 10e-8, 50)
+    pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
+
+    print(pos1)
+    print()
+    print(pos2)
+    print()
+    print(calculateError(initial, pos1))
+    print()
+    print(calculateError(initial, pos2))
+
+
+
+
+# def satelliteSim(noOfIterations):
+#     noOfSatellites = 4
+#     theta = pi
+#     satPhi = [0 for i in range(noOfSatellites)]
+
+#     for i in range(noOfSatellites, noOfSatellites + noOfIterations*2, 2):
+
+
+    
+    
+
 if __name__ == "__main__":
 
 
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
 
+    # prob8()
+    test_sporbaug()
 
-    theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    prob1(initial, ABCT, 10e-8)
-    print("Problem 2, finished")
-    print("-"*55)
-    prob3()
-    prob4()
-    prob5()
-    prob6()
-    prob7()
-    prob8()
-    theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
+    # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
+    # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
+    # prob1(initial, ABCT, 10e-8)
+    # print("Problem 2, finished")
+    # print("-"*55)
+    # prob3()
+    # prob4()
+    # prob5()
+    # prob6()
+    # prob7()
+    # prob8()
+    # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
+    # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
-    new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
+    # new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
