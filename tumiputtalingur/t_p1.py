@@ -46,7 +46,6 @@ def DF(inArr, ABCT_array,size=4):
         ret_matrix[i,1] = 2*(y-ABCT_array[1,i])
         ret_matrix[i,2] = 2*(z-ABCT_array[2,i])
         ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
-
     return ret_matrix
 
 #-- Analysis Methods
