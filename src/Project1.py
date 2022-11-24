@@ -174,22 +174,28 @@ def prob4():
     print("-"*55)
 
 def prob5():
-    diffence = 10**(-8)
-    diffence2 = 2*10**(-8)
-    phi_orig = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    theta_orig = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    theta = np.array([-((np.pi)/4)-diffence,-((np.pi)/4)+diffence,-((np.pi)/4)-diffence,-((np.pi)/4)+diffence])
-    phi = np.array([((np.pi)/8)-diffence-diffence2,((np.pi)/8)-diffence+diffence2,((np.pi)/8)+diffence-diffence2,((np.pi)/8)+diffence+diffence2])
 
-    close_a,close_b,close_c,close_t = find_abc(phi, theta)
-    a,b,c,t = find_abc(phi_orig, theta_orig)
+    total_diff_array = np.zeros(9)
+    error_array = np.zeros(9)
+    for i in range(9):
+        diffence = 10**(-i)
+        diffence2 = 2*10**(-8)
+        theta_close = np.array([-((np.pi)/4)-diffence,-((np.pi)/4)+diffence,-((np.pi)/4)-diffence,-((np.pi)/4)+diffence])
+        phi_close = np.array([((np.pi)/8)-diffence-diffence2,((np.pi)/8)-diffence+diffence2,((np.pi)/8)+diffence-diffence2,((np.pi)/8)+diffence+diffence2])
+        close_a,close_b,close_c,close_t = find_abc(phi_close, theta_close)
+        close_x = newtonMethod(initial, np.array([close_a, close_b, close_c, close_t]), 10**(-8))
 
-    x = newtonMethod(initial, np.array([a, b, c, t]), 10**(-8))
-    errorDistance = calc_pos_error(x)
+        total_diff_array[i] = diffence
+        error_array[i] = calc_pos_error(close_x)
 
-    print("Problem 5")
-    print("wrongPos=({:.2f},{:.2f},{:.2f}) error= {:4e} km".format(x[0,0], x[1,0], x[2,0], errorDistance))
-    print("-"*55)
+
+    # total_diff_array = np.log10(total_diff_array)
+    plt.plot(np.flip(np.log10(total_diff_array)*-1), np.flip(error_array), 'ro')
+    plt.ylabel('error[km]')
+    plt.xlabel('angle difference[10^(-x)]')
+    plt.title('Problem 5')
+    
+    plt.show()
 
 
 def randomAnglesError(sets, error, nrSatilites):
