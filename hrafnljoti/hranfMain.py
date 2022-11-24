@@ -43,7 +43,6 @@ def DF(inArr, ABCT_array):
 
 #----------------------ANALYSIS METHODS----------------------#
 def newtonMethod(x0, ABCT_arr, tol, cap=None):
-    x0 = np.reshape(x0, (x0.size, 1))
     x=x0
     oldx =x + 2*tol
     iterations = 0
@@ -85,12 +84,15 @@ def gaussNewton(x0, ABCT_arr, tol, cap=None):
         if((cap != None) and (cap <= iterations)):
             return np.empty(shape=(0))
         oldx = x
+
+
         jacobi = DF(x, ABCT_arr)
         jacobiTrans = np.matrix.transpose(jacobi)
         f = F(x, ABCT_arr)
-        # fTrans = np.matrix.transpose(f)
+        fTrans = np.matrix.transpose(f)
         DfTransF = np.matmul(jacobiTrans, f)
         DfTransDf = np.matmul(jacobiTrans, jacobi)
+        # print("f={}, fTrans={}, DfTrans={}, DF={}, DfTransDf={}, DfTransF={}".format(f.shape, fTrans.shape, jacobiTrans.shape, jacobi.shape, DfTransDf.shape, DfTransF.shape))
         s = LA.solve(DfTransDf, DfTransF)
         x = x-s
         iterations += 1
@@ -100,12 +102,12 @@ def gaussNewton(x0, ABCT_arr, tol, cap=None):
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
     print("Problem 1 finished")
-    print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0, 0], x[1, 0], x[2, 0], x[3, 0]))
+    print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0], x[1], x[2], x[3]))
     print("-"*55)
     return x
+    
 
-
-def find_abc(phi, theta):
+def find_abc(phi, theta): 
     '''This really is the requirements for problem 2'''
     new_a, new_b, new_c, new_t = np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size), np.zeros(phi.size)
     for i in range(phi.size):
@@ -123,8 +125,8 @@ def prob3():
     incorr_a, incorr_b, incorr_c, incorr_t = find_abc(phi_w_errors, theta_orig)
     corr_x = newtonMethod(initial,  np.array([corr_a, corr_b, corr_c, corr_t]),10**(-8))
     incorr_x = newtonMethod(initial, np.array([incorr_a, incorr_b, incorr_c, corr_t]), 10**(-8))
-    distance_incorr_x = np.sqrt(incorr_x[0,0]**2 + incorr_x[1,0]**2 + incorr_x[2,0]**2)
-    distance_corr_x = np.sqrt(corr_x[0,0]**2 + corr_x[1,0]**2 + corr_x[2,0]**2)
+    distance_incorr_x = np.sqrt(incorr_x[0]**2 + incorr_x[1]**2 + incorr_x[2]**2)
+    distance_corr_x = np.sqrt(corr_x[0]**2 + corr_x[1]**2 + corr_x[2]**2)
     print("Problem 3")
     print("Real = {:f} km, Wrong = {:f} , error = {:.4e} km".format(distance_corr_x,distance_incorr_x,abs(distance_incorr_x-distance_corr_x)))
     print("-"*55)
@@ -149,7 +151,7 @@ def prob4():
         check -= 1
         new_a, new_b, new_c, new_t = find_abc(phi_temp, theta_orig)
         ABCT_arr = np.matrix([new_a, new_b, new_c, correct_t])
-        incorrect_values[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
+        incorrect_values[i] = newtonMethod(initial, ABCT_arr, 10**(-6))
 
     correct_distance = np.sqrt((correct_values[0]**2) + (correct_values[1]**2) + (correct_values[2]**2))
     incorrect_distance_cur = np.sqrt( (incorrect_values[0,0]**2) + (incorrect_values[0,1]**2) + (incorrect_values[0,2]**2) )
@@ -159,8 +161,8 @@ def prob4():
             incorrect_distance_cur = incorrect_distance
 
     print("Problem 4:")
-    prob4SolError = abs(correct_distance[0] - incorrect_distance_cur)
-    print("Real={} km, Wrong={} km, Error={:.4e} km".format(correct_distance[0], incorrect_distance_cur, prob4SolError))
+    prob4SolError = abs(correct_distance - incorrect_distance_cur)
+    print("Real={} km, Wrong={} km, Error={:.4e} km".format(round(correct_distance,6), round(incorrect_distance_cur,6), prob4SolError))
     print("-"*55)
     return incorrect_values, correct_values
 
@@ -180,7 +182,7 @@ def prob5():
     distance_x = np.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
     distance_corr_x = np.sqrt(close_x[0]**2 + close_x[1]**2 + close_x[2]**2)
     print("Problem 5")
-    print("error = {:f} km".format(abs(distance_x[0]-distance_corr_x[0])))
+    print("error = {:f} km".format(abs(distance_x-distance_corr_x)))
 
 def randomAnglesError(sets, error, nrSatilites):
     i = 0
@@ -192,7 +194,7 @@ def randomAnglesError(sets, error, nrSatilites):
         new_a, new_b, new_c, original_t = find_abc(phi_arr, theta_arr)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
         correct_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
-
+        
         if(correct_xyzd.size > 0):
             new_a, new_b, new_c, new_t = find_abc(phi_arr + error, theta_arr + error)
             ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
@@ -207,36 +209,10 @@ def randomAnglesError(sets, error, nrSatilites):
 
     return measuring_array, angles_arry
 
-
-
-def randomAnglesError(sets, error, nrSatilites):
-    i = 0
-    measuring_array = np.zeros((sets))
-    angles_arry = np.zeros((sets, nrSatilites*2))
-    while i < sets:
-        phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
-        theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
-        new_a, new_b, new_c, original_t = find_abc(phi_arr, theta_arr)
-        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-        correct_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
-
-        if(correct_xyzd.size > 0):
-            new_a, new_b, new_c, new_t = find_abc(phi_arr + error, theta_arr + error)
-            ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-            incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10e-8, 50)
-            if(incorrect_xyzd.size > 0):
-                correct_distance   = np.sqrt((correct_xyzd[0]**2) + (correct_xyzd[1]**2) + (correct_xyzd[2]**2))
-                incorrect_distance = np.sqrt((incorrect_xyzd[0]**2) + (incorrect_xyzd[1]**2) + (incorrect_xyzd[2]**2))
-                measuring_array[i] = abs(correct_distance - incorrect_distance)
-                angles_arry[i][0:nrSatilites] = phi_arr
-                angles_arry[i][nrSatilites:] = theta_arr
-                i += 1
-
-    return measuring_array, angles_arry
+    
 
 def prob6():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 4)
-    # if running_once:
     print("PROBLEM 6:")
     print("-"*55)
     print("Error: max={}, min={}, average={}, std={}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.std(measuring_array)))
@@ -246,24 +222,9 @@ def prob6():
     plt.hist(measuring_array, 500, range=(0, 0.01))
     plt.show()
     print("-"*55)
-    # return np.max(measuring_array)
 
 def prob7():
-    print(bisection(f, 1e-14, 1e-8, 10**(-6)))
-    print("Problem 7")
-    print("-"*55)
-
-def f(y):
-    measuring_error, angles = randomAnglesError(sets=100, error=y, nrSatilites=4)
-    return np.max(measuring_error) - 0.0001
-    # return prob6(error = y,running_once=False) - 0.0001
-
-def printLocation(ABCT_arr):
-    str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
-    try:
-        print(str.format(ABCT_arr[0], ABCT_arr[1], ABCT_arr[2], ABCT_arr[3]))
-    except TypeError:
-        print(str.format(ABCT_arr[0,0], ABCT_arr[1,0], ABCT_arr[2,0], ABCT_arr[3,0]))
+    pass
 
 def prob8():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 5)
@@ -277,23 +238,29 @@ def prob8():
     plt.show()
     print("-"*55)
 
+def printLocation(ABCT_arr):
+    str = "x: {:.2f}km\ny: {:.2f}km\nz: {:.2f}km\nd: {:.2e}km"
+    try:
+        print(str.format(ABCT_arr[0], ABCT_arr[1], ABCT_arr[2], ABCT_arr[3]))
+    except TypeError:
+        print(str.format(ABCT_arr[0,0], ABCT_arr[1,0], ABCT_arr[2,0], ABCT_arr[3,0]))
+
 if __name__ == "__main__":
-
-
+    
+ 
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
 
 
     theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    prob1(initial, ABCT, 10e-8)
-    print("Problem 2, finished")
-    print("-"*55)
-    prob3()
-    prob4()
-    prob5()
-    prob6()
-    prob7()
+    # prob1(initial, ABCT, 10e-8)
+    # print("Problem 2, finished")
+    # print("-"*55)
+    # prob3()
+    # prob4()
+    # prob5()
+    # prob6()
     prob8()
     theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
