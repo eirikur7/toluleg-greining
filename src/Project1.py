@@ -43,6 +43,11 @@ def DF(inArr, ABCT_array):
         ret_matrix[i,3] = 2*c2*(ABCT_array[3,i]-d)
     return ret_matrix
 
+def calc_pos_error(wrongPos, dimentional=2, correctPos=correct_position):
+    if dimentional == 2:
+        return np.sqrt((correctPos[0] - wrongPos[0,0])**2 + (correctPos[1] - wrongPos[1,0])**2 + (correctPos[2] - wrongPos[2,0])**2)
+    elif dimentional == 1:
+        return np.sqrt((correctPos[0] - wrongPos[0])**2 + (correctPos[1] - wrongPos[1])**2 + (correctPos[2] - wrongPos[2])**2)
 #----------------------ANALYSIS METHODS----------------------#
 def newtonMethod(x0, ABCT_arr, tol, cap=None):
     x0 = np.reshape(x0, (x0.size, 1))
@@ -98,17 +103,13 @@ def gaussNewton(x0, ABCT_arr, tol, cap=None):
         iterations += 1
     return x
 
-def calc_pos_error(wrongPos, dimentional=2, correctPos=correct_position):
-    if dimentional == 2:
-        return np.sqrt((correctPos[0] - wrongPos[0,0])**2 + (correctPos[1] - wrongPos[1,0])**2 + (correctPos[2] - wrongPos[2,0])**2)
-    elif dimentional == 1:
-        return np.sqrt((correctPos[0] - wrongPos[0])**2 + (correctPos[1] - wrongPos[1])**2 + (correctPos[2] - wrongPos[2])**2)
+
 #----------------------PROBLEMS----------------------#
 
 def prob1(x0, ABCT_arr, tol):
     x = newtonMethod(x0, ABCT_arr, tol)
-    print("Problem 1 finished")
-    print("x = {:.2f}, y = {:.2f}, z = {:.2f}, d = {:.2e}".format(x[0, 0], x[1, 0], x[2, 0], x[3, 0]))
+    print("Problem 1")
+    print("x = {:.6f}, y = {:.6f}, z = {:.6f}, d = {:.6e}".format(x[0, 0], x[1, 0], x[2, 0], x[3, 0]))
     print("-"*55)
     return x
 
@@ -319,13 +320,13 @@ if __name__ == "__main__":
     prob1(initial, ABCT, 10e-8)
     print("Problem 2, finished")
     print("-"*55)
-    prob3()
-    prob4()
-    prob5()
-    prob6()
-    prob7()
-    prob8()
-    prob9()
+    # prob3()
+    # prob4()
+    # prob5()
+    # prob6()
+    # prob7()
+    # prob8()
+    # prob9()
     theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
