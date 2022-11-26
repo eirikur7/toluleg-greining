@@ -490,16 +490,42 @@ if __name__ == "__main__":
 
     # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
-    prob1(initial, ABCT, 1e-8)
-    # print("Problem 2, finished")
-    # print("-"*55)
-    prob3()
-    prob4()
-    prob5()
-    prob6()
-    prob7()
-    prob8()
-    prob9()
+    user_input = input("What problem do you want to run? (1-10) ")
+    allowed = ["1","2","3","4","5","6","7","8","9","10"]
+    while user_input in allowed:
+        if user_input == "1":
+            prob1()
+        elif user_input == "2":
+            print("Problem 2, finished (see problem 3)")
+        elif user_input == "3":
+            prob3()
+        elif user_input == "4":
+            prob4()
+        elif user_input == "5":
+            prob5()
+        elif user_input == "6":
+            prob6()
+        elif user_input == "7":
+            prob7()
+        elif user_input == "8":
+            prob8()
+        elif user_input == "9":
+            prob9()
+        elif user_input == "10":
+            user_input2 = input("Do you want to run problem 10.1 or 10.2? (1-2) ")
+            if user_input2 == "1":
+                approximateNoOfSatellites()
+            elif user_input2 == "2":
+                prob10_2()
+        user_input = input("What problem do you want to run? (1-10) ")
+    # prob1(initial, ABCT, 1e-8)
+    # prob3()
+    # prob4()
+    # prob5()
+    # prob6()
+    # prob7()
+    # prob8()
+    # prob9()
     # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
