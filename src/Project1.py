@@ -260,19 +260,6 @@ def prob8():
     print("-"*55)
 
 
-
-
-
-
-# def satelliteSim(noOfIterations):
-#     noOfSatellites = 4
-#     theta = pi
-#     satPhi = [0 for i in range(noOfSatellites)]
-
-#     for i in range(noOfSatellites, noOfSatellites + noOfIterations*2, 2):
-
-
-    
     
 def prob9():
     nrSatilites = [6, 7, 8, 9]
@@ -327,6 +314,114 @@ def test_sporbaug():
     print(calculateError(initial, pos1))
     print()
     print(calculateError(initial, pos2))
+
+def calcError(original_t,phi,theta,nr_sattelites=4):
+    check = 2**nr_sattelites - 1
+
+    incorrect_values_phi = np.zeros((check+1, 4))
+
+    incorrect_values_theta = np.zeros((check+1, 4))
+
+    incorrect_values_both = np.zeros((check+1, 4))
+    
+    for i in range(check+1):
+        phi_temp = phi.copy()
+        theta_temp = theta.copy()
+        for ii in range(phi.size):
+            if((check>>ii)&1) == 1:
+                phi_temp[ii] += 10**(-8)
+                theta_temp[ii] += 10**(-8)
+            else:
+                phi_temp[ii] += -10**(-8)
+                theta_temp[ii] += -10**(-8)
+
+        check -= 1
+        #Phi
+        new_a, new_b, new_c, _ = find_abc(phi_temp, theta)
+        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
+        incorrect_values_phi[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
+
+        #Theta
+        new_a, new_b, new_c, _ = find_abc(phi, theta_temp)
+        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
+        incorrect_values_theta[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
+
+        #both
+        new_a, new_b, new_c, _ = find_abc(phi_temp, theta_temp)
+        ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
+        incorrect_values_both[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
+
+
+    #phi
+    error_cur_phi = calc_pos_error(wrongPos=incorrect_values_phi[0], dimentional=1)
+    error_cur_index_phi = 0
+    #Theta
+    error_cur_theta = calc_pos_error(wrongPos=incorrect_values_theta[0], dimentional=1)
+    error_cur_index_theta = 0
+
+    #both
+    error_cur_both = calc_pos_error(wrongPos=incorrect_values_both[0], dimentional=1)
+    error_cur_index_both = 0
+
+    for i in range(1, incorrect_values_phi.shape[0]):
+
+        error_phi = calc_pos_error(wrongPos=incorrect_values_phi[i], dimentional=1)
+        error_theta = calc_pos_error(wrongPos=incorrect_values_theta[i], dimentional=1)
+        error_both = calc_pos_error(wrongPos=incorrect_values_both[i], dimentional=1)
+
+        if(error_phi > error_cur_phi ):
+            error_cur_phi = error_phi
+            error_cur_index_phi = i
+
+        if(error_theta > error_cur_theta ):
+            error_cur_theta = error_theta
+            error_cur_index_theta = i
+
+        if(error_both > error_cur_both ):
+            error_cur_both = error_both
+            error_cur_index_both = i
+
+    return incorrect_values_phi[error_cur_index_phi], incorrect_values_theta[error_cur_index_theta], incorrect_values_both[error_cur_index_both]
+
+def prob10_2(sets=1000,nrSatilites=4):
+    i = 0
+    error_arr_phi = np.zeros((sets, 1))
+    error_arr_theta = np.zeros((sets, 1))
+    error_arr_both = np.zeros((sets, 1))
+
+    while i < sets:
+        phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
+        theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
+        
+        _, _, _, original_t = find_abc(phi_arr, theta_arr)
+        
+        errored_phi,errored_theta,errored_both = calcError(original_t,phi_arr,theta_arr,nr_sattelites=nrSatilites)
+
+        error_phi = calc_pos_error(wrongPos=errored_phi, dimentional=1)
+        error_theta = calc_pos_error(wrongPos=errored_theta, dimentional=1)
+        error_both = calc_pos_error(wrongPos=errored_both, dimentional=1)
+
+        error_arr_phi[i] = error_phi
+        error_arr_theta[i] = error_theta
+        error_arr_both[i] = error_both
+
+        i += 1
+        #subplot
+     
+    print("Mean error for phi: ",error_arr_phi.mean())
+    print("Mean error for theta:", error_arr_theta.mean())
+    plt.subplot(1, 3, 1)
+    plt.title("Phi")
+    plt.hist(error_arr_phi, bins=100, range=(0, 0.005))
+    plt.subplot(1, 3, 2)
+    plt.title("Theta")
+    plt.hist(error_arr_theta, bins=100,range=(0, 0.0000000005))
+    plt.subplot(1, 3, 3)
+    plt.title("Both")
+    plt.hist(error_arr_both, bins=100,range=(0, 0.005))
+    plt.show()
+    
+
 
 if __name__ == "__main__":
 
