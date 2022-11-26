@@ -260,10 +260,9 @@ def prob8():
 
 
     
-def prob9():
+def prob9(sets = 10000):
     nrSatilites = [6, 7, 8, 9]
     colors = ["r", "b", "g", "k"]
-    sets = 10000
     bins = 500
     allMeasure = np.zeros((len(nrSatilites), sets))
     for i in range(len(nrSatilites)):
@@ -510,7 +509,7 @@ if __name__ == "__main__":
         elif user_input == "8":
             prob8()
         elif user_input == "9":
-            prob9()
+            prob9(sets=1000)
         elif user_input == "10":
             user_input2 = input("Do you want to run problem 10.1 or 10.2? (1-2) ")
             if user_input2 == "1":
