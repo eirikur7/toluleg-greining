@@ -237,7 +237,7 @@ def prob7():
     print("-"*55)
 
 def f(y):
-    measuring_error, angles = randomAnglesError(sets=100, error=y, nrSatilites=4)
+    measuring_error, _ = randomAnglesError(sets=100, error=y, nrSatilites=4)
     return np.max(measuring_error) - 0.0001
 
 def printLocation(ABCT_arr):
@@ -494,7 +494,7 @@ if __name__ == "__main__":
     allowed = ["1","2","3","4","5","6","7","8","9","10"]
     while user_input in allowed:
         if user_input == "1":
-            prob1()
+            prob1(initial, ABCT, 10**(-6))
         elif user_input == "2":
             print("Problem 2, finished (see problem 3)")
         elif user_input == "3":
