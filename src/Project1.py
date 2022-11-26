@@ -306,7 +306,7 @@ def test_sporbaug():
     # new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
     # ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
    
-    pos1 = gaussNewton(initial, ABCT_arr1, 10e-8, 50)
+    pos1 = gaussNewton(initial, ABCT_arr1, 1e-8, 50)
     # pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
 
     print(pos1)
@@ -322,7 +322,7 @@ def approximateNoOfSatellites():
     print("printing out the current number of satellites to track progress.")
     iterations = list(range(5,40,1))
     sets = 100
-    satellite_error = [10e-8, 10e-9, 10e-10, 10e-11]
+    satellite_error = [1e-8, 1e-9, 1e-10, 1e-11]
     measurements = np.zeros((len(iterations), 2*len(satellite_error)))
     counter = 0
     for i in iterations:
