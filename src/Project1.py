@@ -3,7 +3,7 @@ from numpy import linalg as LA
 import matplotlib.pyplot as plt
 import math
 
-initial = np.array([0,0,6370,0])
+initial = np.array([0,0,6370,0]) #x,y,z,d -> km, km, km, km
 correct_position = [0, 0, 6370]
 
 A = np.array([15600, 18760, 17610, 19170])
@@ -11,9 +11,9 @@ B = np.array([7540, 2750, 14630, 610])
 C = np.array([20140, 18610, 13480, 18390])
 t = np.array([0.07074,0.07220,0.07690,0.07242])
 
-c = 299792.458
+c = 299792.458 #km/s
 c2 = c*c
-RHO = 26570
+RHO = 26570 #km
 
 ABCT = np.matrix([A, B, C, t])
 
@@ -221,13 +221,14 @@ def randomAnglesError(sets, error, nrSatilites):
 
 def prob6():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 4)
+    measuring_array *= 1000 # convert to meters
     # if running_once:
     print("PROBLEM 6:")
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
-    plt.hist(measuring_array, 500, range=(0, 0.01))
+    plt.hist(measuring_array, 100, range=(0, np.max(measuring_array)))
     plt.show()
     print("-"*55)
     # return np.max(measuring_array)
@@ -250,12 +251,13 @@ def printLocation(ABCT_arr):
 
 def prob8():
     measuring_array, angles_arry = randomAnglesError(10000, 10e-8, 5)
+    measuring_array *= 1000 # convert to meters
     print("PROBLEM 8:")
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
-    plt.hist(measuring_array, 500, range=(0, 0.01))
+    plt.hist(measuring_array, 500, range=(0, np.max(measuring_array)))
     plt.show()
     print("-"*55)
 
@@ -307,26 +309,79 @@ def calculateError(pos1, pos2):
     return np.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
  
 def test_sporbaug():
-    theta_arr = np.array([0, 0, math.pi])
-    
-    phi_arr1 = np.array([math.pi/2, 0, math.pi/2]) 
+    theta_arr = np.array([0, 0, math.pi, math.pi/2])
+
+    phi_arr1 = np.array([math.pi/2, 0, math.pi/2, math.pi/4]) 
     new_a, new_b, new_c, original_t = find_abc(phi_arr1, theta_arr)
     ABCT_arr1 = np.matrix([new_a, new_b, new_c, original_t])
 
-    phi_arr2 = np.array([math.pi/4, 0, math.pi/4])
-    new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
-    ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
+    # phi_arr2 = np.array([math.pi/4, 0, math.pi/4])
+    # new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
+    # ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
    
     pos1 = gaussNewton(initial, ABCT_arr1, 10e-8, 50)
-    pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
+    # pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
 
     print(pos1)
     print()
-    print(pos2)
-    print()
+    # print(pos2)
+    # print()
     print(calculateError(initial, pos1))
     print()
-    print(calculateError(initial, pos2))
+    # print(calculateError(initial, pos2))
+
+def approximateNoOfSatellites():
+    print("Simulating 5 to 40 satellites, in each iteration we take X amount of measurements. For the report a 1000 were done for each iteration, however currently it's set to a 100 to speed up the sim. Change the variable 'sets' in the function 'randomAnglesError' to 1000 to get similar results as in the report.")
+    print("printing out the current number of satellites to track progress.")
+    iterations = list(range(5,40,1))
+    sets = 100
+    satellite_error = [10e-8, 10e-9, 10e-10, 10e-11]
+    measurements = np.zeros((len(iterations), 2*len(satellite_error)))
+    counter = 0
+    for i in iterations:
+        temp_arr = []
+        for error in satellite_error:
+            measure_arr, angle_arr = randomAnglesError(sets, error, i)
+            temp_arr += [np.average(measure_arr), np.std(measure_arr)]
+        measurements[counter] = temp_arr
+        print(i, end=" ")
+    print(i)
+    
+    
+    # figure, ax = plt.subplots()
+    plt.plot(iterations, measurements[:,0]*10**5, '.', label=satellite_error[0])
+    plt.plot(iterations, measurements[:,2]*10**5, '.', label=satellite_error[1])
+    plt.plot(iterations, measurements[:,4]*10**5, '.', label=satellite_error[2])
+    plt.plot(iterations, measurements[:,6]*10**5, '.', label=satellite_error[3])
+    plt.legend(loc="upper right")
+    plt.xlabel("Number of satellites")
+    plt.ylabel("Error [cm]")
+    plt.show()
+
+    # ax[0,1].plot(iterations, measurements[:,1]*10**5, 'k.')
+    # ax[0,1].title.set_text("Median")
+    # ax[0,1].set_xlabel("Number of satellites")
+    # ax[0,1].set_ylabel("Error [cm]")
+
+    plt.plot(iterations, measurements[:,1]*10**5, '.', label=satellite_error[0])
+    plt.plot(iterations, measurements[:,3]*10**5, '.', label=satellite_error[1])
+    plt.plot(iterations, measurements[:,5]*10**5, '.', label=satellite_error[2])
+    plt.plot(iterations, measurements[:,7]*10**5, '.', label=satellite_error[3])
+    plt.legend(loc="upper right")
+    plt.xlabel("Number of satellites")
+    plt.ylabel("Error [cm]")
+    plt.show()
+
+
+    # ax[1,1].plot(iterations, measurements[:,3]*10**5, 'k.')
+    # ax[1,1].title.set_text("max")
+    # ax[1,1].set_xlabel("Number of satellites")
+    # ax[1,1].set_ylabel("Error [cm]")
+
+    # plt.plot(iterations, measurements[:,0]*10**5, 'ro', label="mean")
+    # plt.plot(iterations, [threshold]*len(iterations), 'b')
+    # figure.show()
+    # plt.show()
 
 if __name__ == "__main__":
 
@@ -335,7 +390,6 @@ if __name__ == "__main__":
     # print(DF(initial, ABCT))
 
     # prob8()
-    test_sporbaug()
 
     # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
@@ -345,10 +399,11 @@ if __name__ == "__main__":
     # prob3()
     # prob4()
     # prob5()
-    # prob6()
+    prob6()
     # prob7()
-    # prob8()
+    prob8()
     # prob9()
+    # approximateNoOfSatellites()
     # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
     # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
 
