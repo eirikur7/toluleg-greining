@@ -191,7 +191,7 @@ def prob5():
     plt.show()
 
 
-def randomAnglesError(sets, error, nrSatilites):
+def randomAnglesError(sets, error, nrSatilites, UseNewtomMethod = False):
     i = 0
     measuring_array = np.zeros((sets))
     angles_arry = np.zeros((sets, nrSatilites*2))
@@ -199,9 +199,13 @@ def randomAnglesError(sets, error, nrSatilites):
         phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
         theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
         _, _, _, original_t = find_abc(phi_arr, theta_arr)
-        new_a, new_b, new_c, _ = find_abc(phi_arr + error, theta_arr + error)
+        new_a, new_b, new_c, _ = find_abc(phi_arr, theta_arr)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-        incorrect_xyzd = gaussNewton(initial, ABCT_arr, (10**(-8)), 50)
+        # incorrect_xyzd = gaussNewton(initial, ABCT_arr, (10**(-8)), 50)
+        if UseNewtomMethod:
+            incorrect_xyzd = newtonMethod(initial, ABCT_arr, 10**(-8), 50)
+        else:
+            incorrect_xyzd = gaussNewton(initial, ABCT_arr, 10**(-8), 50)
         if(incorrect_xyzd.size > 0):
             measuring_array[i] = calc_pos_error(incorrect_xyzd)
             angles_arry[i][0:nrSatilites] = phi_arr
@@ -218,18 +222,21 @@ def prob6():
     std = np.std(measuring_array)
     meadian = np.median(measuring_array)
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), mean, meadian, std))
+    plt.hist(measuring_array, 500, range=(0, 1))
+    plt.show()
+    print("-"*55)
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
-    fig, ax = plt.subplots(2, 1)
-    ax[0].hist(measuring_array, 500,range=(0, mean + 3*std))
-    # ax[0].set_xlabel("Positional Error[km]")
-    ax[0].set_ylabel("Counts")
-    ax[0].set_title("99% of Data")
-    ax[1].hist(measuring_array, 500, range=(0, 10*meadian))
-    ax[1].set_xlabel("Positional Error[km]")
-    ax[1].set_ylabel("Counts")
-    ax[1].set_title("Range 0 to 10*median")
+    # fig, ax = plt.subplots(2, 1)
+    # ax[0].hist(measuring_array, 500,range=(0, mean + 3*std))
+    # # ax[0].set_xlabel("Positional Error[km]")
+    # ax[0].set_ylabel("Counts")
+    # ax[0].set_title("99% of Data")
+    # ax[1].hist(measuring_array, 500, range=(0, 10*meadian))
+    # ax[1].set_xlabel("Positional Error[km]")
+    # ax[1].set_ylabel("Counts")
+    # ax[1].set_title("Range 0 to 10*median")
 
 def prob7():
     print(bisection(f, (10**(-14)), (10**(-8)), 10**(-6)))
@@ -254,7 +261,7 @@ def prob8():
     max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
-    plt.hist(measuring_array, 500, range=(0, np.max(measuring_array)))
+    plt.hist(measuring_array, 500, range=(0, 1))
     plt.show()
     print("-"*55)
 
@@ -322,7 +329,7 @@ def approximateNoOfSatellites():
     print("printing out the current number of satellites to track progress.")
     iterations = list(range(5,40,1))
     sets = 100
-    satellite_error = [(10**(-8)), 1e-9, 1e-10, 1e-11]
+    satellite_error = [10**(-8), 10**(-9), 10**(-10), 10**(-11)]
     measurements = np.zeros((len(iterations), 2*len(satellite_error)))
     counter = 0
     for i in iterations:
@@ -331,6 +338,7 @@ def approximateNoOfSatellites():
             measure_arr, angle_arr = randomAnglesError(sets, error, i)
             temp_arr += [np.average(measure_arr), np.std(measure_arr)]
         measurements[counter] = temp_arr
+        counter += 1
         print(i, end=" ")
     print(i)
     
@@ -480,7 +488,7 @@ def prob10_2(sets=1000,nrSatilites=4):
 
 if __name__ == "__main__":
 
-
+    approximateNoOfSatellites()
     # print(F(initial, ABCT))
     # print(DF(initial, ABCT))
 
