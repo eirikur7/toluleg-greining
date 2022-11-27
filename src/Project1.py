@@ -343,8 +343,6 @@ def approximateNoOfSatellites():
         print(i, end=" ")
     print(i)
     
-    
-    # figure, ax = plt.subplots()
     plt.plot(iterations, measurements[:,0]*10**5, '.', label=satellite_error[0])
     plt.plot(iterations, measurements[:,2]*10**5, '.', label=satellite_error[1])
     plt.plot(iterations, measurements[:,4]*10**5, '.', label=satellite_error[2])
@@ -353,11 +351,6 @@ def approximateNoOfSatellites():
     plt.xlabel("Number of satellites")
     plt.ylabel("Error [cm]")
     plt.show()
-
-    # ax[0,1].plot(iterations, measurements[:,1]*10**5, 'k.')
-    # ax[0,1].title.set_text("Median")
-    # ax[0,1].set_xlabel("Number of satellites")
-    # ax[0,1].set_ylabel("Error [cm]")
 
     plt.plot(iterations, measurements[:,1]*10**5, '.', label=satellite_error[0])
     plt.plot(iterations, measurements[:,3]*10**5, '.', label=satellite_error[1])
@@ -368,16 +361,6 @@ def approximateNoOfSatellites():
     plt.ylabel("Error [cm]")
     plt.show()
 
-
-    # ax[1,1].plot(iterations, measurements[:,3]*10**5, 'k.')
-    # ax[1,1].title.set_text("max")
-    # ax[1,1].set_xlabel("Number of satellites")
-    # ax[1,1].set_ylabel("Error [cm]")
-
-    # plt.plot(iterations, measurements[:,0]*10**5, 'ro', label="mean")
-    # plt.plot(iterations, [threshold]*len(iterations), 'b')
-    # figure.show()
-    # plt.show()
 
 def calcError(original_t,phi,theta,nr_sattelites=4):
     check = 2**nr_sattelites - 1
