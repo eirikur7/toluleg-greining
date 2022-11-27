@@ -187,9 +187,6 @@ def prob5():
 
         total_diff_array[i] = diffence
         error_array[i] = calc_pos_error(close_x)
-
-
-    # total_diff_array = np.log10(total_diff_array)
     plt.plot(np.flip(np.log10(total_diff_array)*-1), np.flip(error_array), 'ro')
     plt.ylabel('error[km]')
     plt.xlabel('angle difference[10^(-x)]')
@@ -222,20 +219,12 @@ def randomAnglesError(sets, error, nrSatilites, UseNewtomMethod = False):
 
 def prob6():
     measuring_array, angles_arry = randomAnglesError(10000, (10**(-8)), 4)
-    # if running_once:
     print("PROBLEM 6:")
     mean = np.mean(measuring_array)
     std = np.std(measuring_array)
     meadian = np.median(measuring_array)
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), mean, meadian, std))
-    # plt.hist(measuring_array, 500, range=(0, 17))
-    # plt.show()
-    # print("-"*55)
-    # max_index = np.argmax(measuring_array)
-    # print(angles_arry[max_index][0:4] - (np.pi/2))
-    # print(angles_arry[max_index][4:]  - (2*np.pi))
     fig, ax = plt.subplots(2, 1)
-
     ax[0].hist(measuring_array, 500,range=(0, 0.001))
     ax[0].set_xlabel("Positional Error[km]")
     ax[0].set_ylabel("Counts")
@@ -269,7 +258,7 @@ def prob8():
     max_index = np.argmax(measuring_array)
     print(angles_arry[max_index][0:4] - (np.pi/2))
     print(angles_arry[max_index][4:]  - (2*np.pi))
-    plt.hist(measuring_array, 500, range=(0, 1))
+    plt.hist(measuring_array, 500, range=(0, 0.005))
     plt.show()
     print("-"*55)
 
@@ -310,28 +299,6 @@ def prob9(sets = 10000):
 def calculateError(pos1, pos2):
     return np.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
  
-def test_sporbaug():
-    theta_arr = np.array([0, 0, math.pi, math.pi/2])
-
-    phi_arr1 = np.array([math.pi/2, 0, math.pi/2, math.pi/4]) 
-    new_a, new_b, new_c, original_t = find_abc(phi_arr1, theta_arr)
-    ABCT_arr1 = np.matrix([new_a, new_b, new_c, original_t])
-
-    # phi_arr2 = np.array([math.pi/4, 0, math.pi/4])
-    # new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
-    # ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
-   
-    pos1 = gaussNewton(initial, ABCT_arr1, (10**(-8)), 50)
-    # pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
-
-    print(pos1)
-    print()
-    # print(pos2)
-    # print()
-    print(calculateError(initial, pos1))
-    print()
-    # print(calculateError(initial, pos2))
-
 def approximateNoOfSatellites():
     print("Simulating 5 to 40 satellites, in each iteration we take X amount of measurements. For the report a 1000 were done for each iteration, however currently it's set to a 100 to speed up the sim. Change the variable 'sets' in the function 'randomAnglesError' to 1000 to get similar results as in the report.")
     print("printing out the current number of satellites to track progress.")
