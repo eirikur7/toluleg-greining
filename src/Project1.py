@@ -244,7 +244,7 @@ def prob7():
     print("-"*55)
 
 def f(y):
-    measuring_error, angles = randomAnglesError(sets=100, error=y, nrSatilites=4)
+    measuring_error, _ = randomAnglesError(sets=100, error=y, nrSatilites=4)
     return np.max(measuring_error) - 0.0001
 
 def printLocation(ABCT_arr):
@@ -268,10 +268,9 @@ def prob8():
 
 
     
-def prob9():
+def prob9(sets = 10000):
     nrSatilites = [6, 7, 8, 9]
     colors = ["r", "b", "g", "k"]
-    sets = 10000
     bins = 500
     allMeasure = np.zeros((len(nrSatilites), sets))
     for i in range(len(nrSatilites)):
@@ -315,7 +314,7 @@ def test_sporbaug():
     # new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
     # ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
    
-    pos1 = gaussNewton(initial, ABCT_arr1, 10e-8, 50)
+    pos1 = gaussNewton(initial, ABCT_arr1, 1e-8, 50)
     # pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
 
     print(pos1)
@@ -330,8 +329,8 @@ def approximateNoOfSatellites():
     print("Simulating 5 to 40 satellites, in each iteration we take X amount of measurements. For the report a 1000 were done for each iteration, however currently it's set to a 100 to speed up the sim. Change the variable 'sets' in the function 'randomAnglesError' to 1000 to get similar results as in the report.")
     print("printing out the current number of satellites to track progress.")
     iterations = list(range(5,40,1))
-    sets = 1000
-    satellite_error = [10e-8, 10e-9, 10e-10, 10e-11]
+    sets = 100
+    satellite_error = [10**(-8), 10**(-9), 10**(-10), 10**(-11)]
     measurements = np.zeros((len(iterations), 2*len(satellite_error)))
     counter = 0
     for i in iterations:
@@ -499,9 +498,35 @@ if __name__ == "__main__":
 
     # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
+    user_input = input("What problem do you want to run? (1-10) ")
+    allowed = ["1","2","3","4","5","6","7","8","9","10"]
+    while user_input in allowed:
+        if user_input == "1":
+            prob1(initial, ABCT, 10**(-6))
+        elif user_input == "2":
+            print("Problem 2, finished (see problem 3)")
+        elif user_input == "3":
+            prob3()
+        elif user_input == "4":
+            prob4()
+        elif user_input == "5":
+            prob5()
+        elif user_input == "6":
+            prob6()
+        elif user_input == "7":
+            prob7()
+        elif user_input == "8":
+            prob8()
+        elif user_input == "9":
+            prob9(sets=1000)
+        elif user_input == "10":
+            user_input2 = input("Do you want to run problem 10.1 or 10.2? (1-2) ")
+            if user_input2 == "1":
+                approximateNoOfSatellites()
+            elif user_input2 == "2":
+                prob10_2()
+        user_input = input("What problem do you want to run? (1-10) ")
     # prob1(initial, ABCT, 1e-8)
-    # print("Problem 2, finished")
-    # print("-"*55)
     # prob3()
     # prob4()
     # prob5()
