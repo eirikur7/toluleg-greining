@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import math
 
 initial = np.array([0,0,6370,0]) #x,y,z,d -> km, km, km, km
-correct_position = [0, 0, 6370]
+correct_position = [0, 0, 6370] #x, y, z -> km, km, km
 
 A = np.array([15600, 18760, 17610, 19170])
 B = np.array([7540, 2750, 14630, 610])
@@ -12,12 +12,13 @@ C = np.array([20140, 18610, 13480, 18390])
 t = np.array([0.07074,0.07220,0.07690,0.07242])
 
 c = 299792.458 #km/s
-c2 = c*c
+c2 = c*c # c squared
 RHO = 26570 #km
 
 ABCT = np.matrix([A, B, C, t])
 
-def F(inArr, ABCT_array):
+def F(inArr, ABCT_array): 
+    '''F(x,y,z,d) = [f1,f2,f3,f4]'''
     x = inArr[0]
     y = inArr[1]
     z = inArr[2]
@@ -29,6 +30,7 @@ def F(inArr, ABCT_array):
     return ret_matrix
 
 def DF(inArr, ABCT_array):
+    ''' DF is the Jacobian matrix of F(x,y,z,d)'''
     x= inArr[0]
     y= inArr[1]
     z= inArr[2]
@@ -44,6 +46,10 @@ def DF(inArr, ABCT_array):
     return ret_matrix
 
 def calc_pos_error(wrongPos, dimentional=2, correctPos=correct_position):
+    ''' This function takes in two arguments, the correct position and the wrong position. 
+    It then calculates the distance between the two positions using the Pythagorean theorem.
+    It then returns the distance between the two positions.'''
+
     if dimentional == 2:
         return np.sqrt((correctPos[0] - wrongPos[0,0])**2 + (correctPos[1] - wrongPos[1,0])**2 + (correctPos[2] - wrongPos[2,0])**2)
     elif dimentional == 1:
@@ -107,6 +113,7 @@ def gaussNewton(x0, ABCT_arr, tol, cap=None):
 #----------------------PROBLEMS----------------------#
 
 def prob1(x0, ABCT_arr, tol):
+    
     x = newtonMethod(x0, ABCT_arr, tol)
     print("Problem 1")
     print("x = {:.6f}, y = {:.6f}, z = {:.6f}, d = {:.6e}".format(x[0, 0], x[1, 0], x[2, 0], x[3, 0]))
@@ -128,8 +135,8 @@ def prob3():
     phi_orig = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
     theta_orig = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
     phi_w_errors = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    corr_a, corr_b, corr_c, corr_t = find_abc(phi_orig, theta_orig)
-    incorr_a, incorr_b, incorr_c, incorr_t = find_abc(phi_w_errors, theta_orig)
+    _, _, _, corr_t = find_abc(phi_orig, theta_orig)
+    incorr_a, incorr_b, incorr_c, _ = find_abc(phi_w_errors, theta_orig)
     incorr_x = newtonMethod(initial, np.array([incorr_a, incorr_b, incorr_c, corr_t]), 10**(-8))
     distance_error = calc_pos_error(wrongPos=incorr_x)
     print("Problem 3")
@@ -149,7 +156,7 @@ def prob4():
                 phi_temp[ii] = phi_temp[ii] + ((10**(-8)))
             else:
                 phi_temp[ii] = phi_temp[ii] - ((10**(-8)))
-        new_a, new_b, new_c, new_t = find_abc(phi_temp, theta_orig)
+        new_a, new_b, new_c, _ = find_abc(phi_temp, theta_orig)
         ABCT_arr = np.matrix([new_a, new_b, new_c, correct_t])
         incorrect_values[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
 
@@ -199,9 +206,8 @@ def randomAnglesError(sets, error, nrSatilites, UseNewtomMethod = False):
         phi_arr = np.random.uniform(low=0, high=np.pi/2, size=(nrSatilites))
         theta_arr = np.random.uniform(low=0, high=2*np.pi, size=(nrSatilites))
         _, _, _, original_t = find_abc(phi_arr, theta_arr)
-        new_a, new_b, new_c, _ = find_abc(phi_arr, theta_arr)
+        new_a, new_b, new_c, _ = find_abc(phi_arr+error, theta_arr)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-        # incorrect_xyzd = gaussNewton(initial, ABCT_arr, (10**(-8)), 50)
         if UseNewtomMethod:
             incorrect_xyzd = newtonMethod(initial, ABCT_arr, 10**(-8), 50)
         else:
@@ -222,21 +228,23 @@ def prob6():
     std = np.std(measuring_array)
     meadian = np.median(measuring_array)
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), mean, meadian, std))
-    plt.hist(measuring_array, 500, range=(0, 1))
-    plt.show()
-    print("-"*55)
-    max_index = np.argmax(measuring_array)
+    # plt.hist(measuring_array, 500, range=(0, 17))
+    # plt.show()
+    # print("-"*55)
+    # max_index = np.argmax(measuring_array)
     # print(angles_arry[max_index][0:4] - (np.pi/2))
     # print(angles_arry[max_index][4:]  - (2*np.pi))
-    # fig, ax = plt.subplots(2, 1)
-    # ax[0].hist(measuring_array, 500,range=(0, mean + 3*std))
-    # # ax[0].set_xlabel("Positional Error[km]")
-    # ax[0].set_ylabel("Counts")
-    # ax[0].set_title("99% of Data")
-    # ax[1].hist(measuring_array, 500, range=(0, 10*meadian))
-    # ax[1].set_xlabel("Positional Error[km]")
-    # ax[1].set_ylabel("Counts")
-    # ax[1].set_title("Range 0 to 10*median")
+    fig, ax = plt.subplots(2, 1)
+
+    ax[0].hist(measuring_array, 500,range=(0, 0.001))
+    ax[0].set_xlabel("Positional Error[km]")
+    ax[0].set_ylabel("Counts")
+    ax[0].set_title("99% of Data")
+    ax[1].hist(measuring_array, 500, range=(0, (10*meadian)))
+    ax[1].set_xlabel("Positional Error[km]")
+    ax[1].set_ylabel("Counts")
+    ax[1].set_title("Range 0 to 10*median")
+    plt.show()
 
 def prob7():
     print(bisection(f, (10**(-14)), (10**(-8)), 10**(-6)))
@@ -259,8 +267,8 @@ def prob8():
     print("PROBLEM 8:")
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
-    # print(angles_arry[max_index][0:4] - (np.pi/2))
-    # print(angles_arry[max_index][4:]  - (2*np.pi))
+    print(angles_arry[max_index][0:4] - (np.pi/2))
+    print(angles_arry[max_index][4:]  - (2*np.pi))
     plt.hist(measuring_array, 500, range=(0, 1))
     plt.show()
     print("-"*55)
@@ -273,7 +281,7 @@ def prob9(sets = 10000):
     bins = 500
     allMeasure = np.zeros((len(nrSatilites), sets))
     for i in range(len(nrSatilites)):
-        measuring_array, angles_arry = randomAnglesError(sets, (10**(-8)), nrSatilites[i])
+        measuring_array, _ = randomAnglesError(sets, (10**(-8)), nrSatilites[i])
         allMeasure[i] = measuring_array
 
     hist_range = [0, 0.0005]
@@ -335,7 +343,7 @@ def approximateNoOfSatellites():
     for i in iterations:
         temp_arr = []
         for error in satellite_error:
-            measure_arr, angle_arr = randomAnglesError(sets, error, i)
+            measure_arr, _ = randomAnglesError(sets, error, i)
             temp_arr += [np.average(measure_arr), np.std(measure_arr)]
         measurements[counter] = temp_arr
         counter += 1
@@ -456,6 +464,7 @@ def prob10_2(sets=1000,nrSatilites=4):
      
     print("Mean error for phi: ",error_arr_phi.mean())
     print("Mean error for theta:", error_arr_theta.mean())
+    print("Mean error for both:", error_arr_both.mean())
     plt.subplot(1, 3, 1)
     plt.title("Phi")
     plt.hist(error_arr_phi, bins=100, range=(0, 0.005))
@@ -470,16 +479,6 @@ def prob10_2(sets=1000,nrSatilites=4):
 
 
 if __name__ == "__main__":
-
-    approximateNoOfSatellites()
-    # print(F(initial, ABCT))
-    # print(DF(initial, ABCT))
-
-    # prob8()
-    # test_sporbaug()
-
-    # theta_1 = np.array([(np.pi)/8,(np.pi)/6,(3*(np.pi))/8,(np.pi)/4])
-    # phi_1 = np.array([-(np.pi)/4,(np.pi)/2,(2*(np.pi))/3,((np.pi))/6])
     user_input = input("What problem do you want to run? (1-10) ")
     allowed = ["1","2","3","4","5","6","7","8","9","10"]
     while user_input in allowed:
@@ -508,15 +507,3 @@ if __name__ == "__main__":
             elif user_input2 == "2":
                 prob10_2()
         user_input = input("What problem do you want to run? (1-10) ")
-    # prob1(initial, ABCT, (10**(-8)))
-    # prob3()
-    # prob4()
-    # prob5()
-    # prob6()
-    # prob7()
-    # prob8()
-    # prob9()
-    # theta_2 = np.array([((np.pi)/8)+(10**(-8)),((np.pi)/6)+(10**(-8)),((3*(np.pi))/8)-(10**(-8)),((np.pi)/4)-(10**(-8))])
-    # new_a, new_b, new_c, new_t = find_abc(theta_1, phi_1)
-
-    # new_a2,new_b2,new_c2,new_t2 = find_abc(theta_2, phi_1)
