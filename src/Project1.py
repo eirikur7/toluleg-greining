@@ -146,9 +146,9 @@ def prob4():
         phi_temp = phi_orig.copy()
         for ii in range(phi_orig.size):
             if((i>>ii)&1) == 1:
-                phi_temp[ii] = phi_temp[ii] + (1e-8)
+                phi_temp[ii] = phi_temp[ii] + ((10**(-8)))
             else:
-                phi_temp[ii] = phi_temp[ii] - (1e-8)
+                phi_temp[ii] = phi_temp[ii] - ((10**(-8)))
         new_a, new_b, new_c, new_t = find_abc(phi_temp, theta_orig)
         ABCT_arr = np.matrix([new_a, new_b, new_c, correct_t])
         incorrect_values[i] = newtonMethod(initial, ABCT_arr, 10**(-6))[:, 0]
@@ -201,7 +201,7 @@ def randomAnglesError(sets, error, nrSatilites):
         _, _, _, original_t = find_abc(phi_arr, theta_arr)
         new_a, new_b, new_c, _ = find_abc(phi_arr + error, theta_arr + error)
         ABCT_arr = np.matrix([new_a, new_b, new_c, original_t])
-        incorrect_xyzd = gaussNewton(initial, ABCT_arr, 1e-8, 50)
+        incorrect_xyzd = gaussNewton(initial, ABCT_arr, (10**(-8)), 50)
         if(incorrect_xyzd.size > 0):
             measuring_array[i] = calc_pos_error(incorrect_xyzd)
             angles_arry[i][0:nrSatilites] = phi_arr
@@ -211,7 +211,7 @@ def randomAnglesError(sets, error, nrSatilites):
     return measuring_array, angles_arry
 
 def prob6():
-    measuring_array, angles_arry = randomAnglesError(10000, 1e-8, 4)
+    measuring_array, angles_arry = randomAnglesError(10000, (10**(-8)), 4)
     # if running_once:
     print("PROBLEM 6:")
     mean = np.mean(measuring_array)
@@ -232,7 +232,7 @@ def prob6():
     ax[1].set_title("Range 0 to 10*median")
 
 def prob7():
-    print(bisection(f, 1e-14, 1e-8, 10**(-6)))
+    print(bisection(f, (10**(-14)), (10**(-8)), 10**(-6)))
     print("Problem 7")
     print("-"*55)
 
@@ -248,7 +248,7 @@ def printLocation(ABCT_arr):
         print(str.format(ABCT_arr[0,0], ABCT_arr[1,0], ABCT_arr[2,0], ABCT_arr[3,0]))
 
 def prob8():
-    measuring_array, angles_arry = randomAnglesError(10000, 1e-8, 5)
+    measuring_array, angles_arry = randomAnglesError(10000, (10**(-8)), 5)
     print("PROBLEM 8:")
     print("Error: max={:.4e}, min={:.4e}, mean={:.4e}, median={:.4e}, std={:.4e}".format(np.max(measuring_array), np.min(measuring_array), np.average(measuring_array), np.median(measuring_array), np.std(measuring_array)))
     max_index = np.argmax(measuring_array)
@@ -266,7 +266,7 @@ def prob9(sets = 10000):
     bins = 500
     allMeasure = np.zeros((len(nrSatilites), sets))
     for i in range(len(nrSatilites)):
-        measuring_array, angles_arry = randomAnglesError(sets, 1e-8, nrSatilites[i])
+        measuring_array, angles_arry = randomAnglesError(sets, (10**(-8)), nrSatilites[i])
         allMeasure[i] = measuring_array
 
     hist_range = [0, 0.0005]
@@ -306,7 +306,7 @@ def test_sporbaug():
     # new_a, new_b, new_c, original_t = find_abc(phi_arr2, theta_arr)
     # ABCT_arr2 = np.matrix([new_a, new_b, new_c, original_t])
    
-    pos1 = gaussNewton(initial, ABCT_arr1, 1e-8, 50)
+    pos1 = gaussNewton(initial, ABCT_arr1, (10**(-8)), 50)
     # pos2 = gaussNewton(initial, ABCT_arr2, 10e-8, 50)
 
     print(pos1)
@@ -322,7 +322,7 @@ def approximateNoOfSatellites():
     print("printing out the current number of satellites to track progress.")
     iterations = list(range(5,40,1))
     sets = 100
-    satellite_error = [1e-8, 1e-9, 1e-10, 1e-11]
+    satellite_error = [(10**(-8)), 1e-9, 1e-10, 1e-11]
     measurements = np.zeros((len(iterations), 2*len(satellite_error)))
     counter = 0
     for i in iterations:
@@ -517,7 +517,7 @@ if __name__ == "__main__":
             elif user_input2 == "2":
                 prob10_2()
         user_input = input("What problem do you want to run? (1-10) ")
-    # prob1(initial, ABCT, 1e-8)
+    # prob1(initial, ABCT, (10**(-8)))
     # prob3()
     # prob4()
     # prob5()
