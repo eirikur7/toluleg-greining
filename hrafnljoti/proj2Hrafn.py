@@ -33,7 +33,7 @@ def euler(n, T, initalValues, F):
     theta[:,0:1] = initalValues
     for i in range(n):
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + F(theta[:,i:(i+1)])*h
-    
+
     return theta
 
 def prob2():
