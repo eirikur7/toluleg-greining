@@ -160,7 +160,7 @@ def prob5():
         total_diff_array[i] = diffence
         error_array[i] = np.sqrt((close_x[0]-initial[0])**2 + (close_x[1]-initial[1])**2 + (close_x[2]-initial[2])**2)
 
-
+    print(error_array)
     # total_diff_array = np.log10(total_diff_array)
     plt.plot(np.flip(np.log10(total_diff_array)*-1), np.flip(error_array), 'ro')
     plt.ylabel('error[km]')
