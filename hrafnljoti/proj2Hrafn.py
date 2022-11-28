@@ -46,6 +46,8 @@ def animateOnePendulum(theta, n, T, name):
     def animate(i):
         line.set_data([0,x[i]], [0,y[i]])
         ln1.set_data([x[i]], [y[i]])
+        if i != 0:
+            trace.set_data(x[0:i], y[0:i])
 
     L = 2
     x = np.cos(theta[0]-(np.pi/2)) * L
@@ -56,6 +58,7 @@ def animateOnePendulum(theta, n, T, name):
     ax.grid()
     ln1, = plt.plot([], [], 'ro', markersize=10)
     line, = plt.plot([], [], 'b-', linewidth=3)
+    trace, = plt.plot([], [], 'r--')
     ax.set_ylim(-2.5, 2.5)
     ax.set_xlim(-2.5, 2.5)
     ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
@@ -65,12 +68,12 @@ def animateOnePendulum(theta, n, T, name):
 def prob3():
     prob3InitialVal = np.matrix([[np.pi/12], [0]])
     theta = euler(500, 20, prob3InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "prob3.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob3.gif")
 
 def prob4():
     prob4InitialVal = np.matrix([[np.pi/2], [0]])
     theta = euler(500, 20, prob4InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "prob4.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob4.gif")
 
 
 def prob5():
@@ -79,6 +82,8 @@ def prob5():
 
 def animateTwoPendulums(theta, n, T, name):
     def animate(i):
+        if i != 0:
+            trace.set_data(x2[0:i], y2[0:i])
         line1.set_data([0,x1[i]], [0,y1[i]])
         point1.set_data([x1[i]], [y1[i]])
         line2.set_data([x1[i], x2[i]], [y1[i], y2[i]])
@@ -96,6 +101,7 @@ def animateTwoPendulums(theta, n, T, name):
     line1, = plt.plot([], [], 'b-', linewidth=3)
     point2, = plt.plot([], [], 'ko', markersize=10)
     line2, = plt.plot([], [], 'g-', linewidth=3)
+    trace, = plt.plot([], [], 'k--')
     
     ax.set_ylim(-4.5, 4.5)
     ax.set_xlim(-4.5, 4.5)
@@ -105,16 +111,13 @@ def animateTwoPendulums(theta, n, T, name):
 
 def animateAllPendulums(theta1, theta2, n, T, name):
     def animate(i):
-
-        if i == 0:
-            return
-
         line1_1.set_data([0, x1_1[i]], [0, y1_1[i]])
         line1_2.set_data([0,x1_2[i]], [0,y1_2[i]])
         line2_2.set_data([x1_2[i], x2_2[i]], [y1_2[i], y2_2[i]])
-        trace1.set_data(x1_1[0:i], y1_1[0:i])
-        trace2.set_data(x2_2[0:i], y2_2[0:i])
-
+        if i != 0:
+            trace1.set_data(x1_1[0:i], y1_1[0:i])
+            trace2.set_data(x2_2[0:i], y2_2[0:i])
+    
     L = 2
     x1_1 = np.cos(theta1[0]-(np.pi/2)) * L
     y1_1 = np.sin(theta1[0]-(np.pi/2)) * L
@@ -141,7 +144,7 @@ def animateAllPendulums(theta1, theta2, n, T, name):
 def prob7():
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     theta = euler(200, 8, prob6InitialVal, F2)
-    animateTwoPendulums(theta, 200, 8, "prob6.gif")
+    animateTwoPendulums(theta, 200, 8, "hrafnljoti\prob6.gif")
 
 def prob8():
     n = 200
@@ -150,12 +153,12 @@ def prob8():
     prob8InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     theta1 = euler(n, T, prob8InitialVal1, F1)
     theta2 = euler(n, T, prob8InitialVal2, F2)
-    animateAllPendulums(theta1, theta2, n, T, "prob8.gif")
+    animateAllPendulums(theta1, theta2, n, T, "hrafnljoti\prob8.gif")
 
 
 if __name__ == "__main__":
-    # prob2()
-    # prob3()
-    # prob4()
-    # prob7()
+    prob2()
+    prob3()
+    prob4()
+    prob7()
     prob8()
