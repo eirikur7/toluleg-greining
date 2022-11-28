@@ -32,14 +32,13 @@ def prob2():
 
     
 
-def animatePendulum(theta):
+def animatePendulum(theta, n, T, name):
     def animate(i):
         line.set_data([0,x[i]], [0,y[i]])
         ln1.set_data([x[i]], [y[i]])
 
         
     L = 2
-    print(theta.shape)
     x = np.cos(theta[0]-(np.pi/2)) * L
     y = np.sin(theta[0]-(np.pi/2)) * L
     
@@ -50,15 +49,19 @@ def animatePendulum(theta):
     line, = plt.plot([], [], 'b-', linewidth=3)
     ax.set_ylim(-2.5, 2.5)
     ax.set_xlim(-2.5, 2.5)
-    ani = animation.FuncAnimation(fig, animate, frames=500, interval=20)
-    ani.save('pen.gif', writer='pillow', fps=25)
+    ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
+    ani.save(name, writer='pillow', fps=25)
     print("done")
 
 def prob3():
     prob3InitialVal = np.matrix([[np.pi/12], [0]])
     theta = euler(500, 20, prob3InitialVal, prob2F)
-    print(theta[:,500])
-    animatePendulum(theta)
+    animatePendulum(theta, 500, 20, "prob3.gif")
+
+def prob4():
+    prob4InitialVal = np.matrix([[np.pi/2], [0]])
+    theta = euler(500, 20, prob4InitialVal, prob2F)
+    animatePendulum(theta, 500, 20, "prob4.gif")
 
 
     
@@ -66,4 +69,5 @@ def prob3():
 
 if __name__ == "__main__":
     # prob2()
-    prob3()
+    # prob3()
+    prob4()
