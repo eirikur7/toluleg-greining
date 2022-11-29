@@ -161,19 +161,24 @@ def animateAllPendulums(theta1, theta2, n, T, name):
     ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
     printFigText(name)
 
-def plotOnePendulum(theta, n, T, name):
-    print(PLOT_TEXT)
+def plotOnePendulum(theta, n, T, verbose=True, name=None, fig=None, ax=None):
+    if verbose: print(PLOT_TEXT)
     x = np.linspace(0, T, n+1)
     y = theta[0]
 
-    fig, ax = plt.subplots(1,1)
+    if fig == None and ax == None:
+        fig, ax = plt.subplots(1,1)
     ax.grid()
     ax.plot(x, y)
     ax.set_xlabel("Time")
     ax.set_ylabel("Angle")
-    ax.set_title("Angle of one pendulum over time")
-    fig.savefig(PLOT_PATH.format(name))
-    printFigText(name)
+    # ax.set_title("Angle of one pendulum over time")
+
+    if name != None:
+        fig.savefig(PLOT_PATH.format(name))
+
+    if verbose: printFigText(name)
+    return fig, ax
 
 #/-------------------------Problems------------------------------------/
 def prob1():
@@ -188,19 +193,28 @@ def prob2():
     [print(theta[0][i].round(2), end=' ') for i in range(20)]
     print()
 
-def prob3():
+def prob3(plot=True, animate=True):
     print("\n---- Problem 3")
     prob3InitialVal = np.matrix([[np.pi/12], [0]])
     theta = euler(500, 20, prob3InitialVal, F1)
-    # animateOnePendulum(theta, 500, 20, "eirikur\AnimateProb3.gif")
-    plotOnePendulum(theta, 500, 20, "problem3")
+    animateOnePendulum(theta=theta, n=500, T=20, name="problem3")
+    plotOnePendulum(theta=theta, n=500, T=20, name="problem3")
 
 def prob4():
     print("\n---- Problem 4")
+    
+    # problem 3 to compare on plot
+    prob3InitialVal = np.matrix([[np.pi/12], [0]])
+    theta3 = euler(500, 20, prob3InitialVal, F1)
+
+    # problem 4 different initial conditions
     prob4InitialVal = np.matrix([[np.pi/2], [0]])
-    theta = euler(500, 20, prob4InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "problem4")
-    plotOnePendulum(theta, 500, 20, "problem4")
+    theta4 = euler(500, 20, prob4InitialVal, F1)
+
+    animateOnePendulum(theta4, 500, 20, "problem4")
+    fig, ax = plotOnePendulum(theta=theta3, n=500, T=20, verbose=False, name=None)
+    plotOnePendulum(theta=theta4, n=500, T=20, verbose=True, name="problem4_combined_w_prob3", fig=fig, ax=ax)
+    plotOnePendulum(theta=theta4, n=500, T=20, verbose=True, name="problem4")
 
 
 def prob5():
@@ -254,19 +268,19 @@ def prob13():
     print("Not done")
 
 if __name__ == "__main__":
-    prob1()
-    prob2()
-    prob3()
+    # prob1()
+    # prob2()
+    # prob3()
     prob4()
-    prob5()
-    prob6()
-    prob7()
-    prob8()
-    prob9()
-    prob10()
-    prob11()
-    prob12()
-    prob13()
+    # prob5()
+    # prob6()
+    # prob7()
+    # prob8()
+    # prob9()
+    # prob10()
+    # prob11()
+    # prob12()
+    # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
     # question = getInput(question_string, question_available)
