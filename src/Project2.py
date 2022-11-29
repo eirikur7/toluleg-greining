@@ -7,7 +7,7 @@ L1 = L2 = 2 #m
 m1 = m2 = 1 #kg
 ANIMATION_TEXT = "Generating animation..."
 PLOT_TEXT = "Generating plot..."
-FIG_PATH = "eirikur/figures/"
+FIG_PATH = "src/figures/"
 ANIMATION_PATH = FIG_PATH + "{}_animation.gif"
 PLOT_PATH = FIG_PATH + "{}_plot.png"
 
