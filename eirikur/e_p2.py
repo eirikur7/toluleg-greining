@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import PillowWriter
 from matplotlib import animation
 g = 9.81
+L1 = L2 = 2 #m
+m1 = m2 = 1 #kg
 ANIMATION_TEXT = "Generating animation..."
 PLOT_TEXT = "Generating plot..."
 FIG_PATH = "eirikur/figures/"
@@ -203,8 +205,14 @@ def prob4():
 
 def prob5():
     print("\n---- Problem 5")
-    print("Not done")
+    prob5InitialVal = np.matrix([[np.pi/12], [0]])
+    theta = RungeKutta(500, 20, prob5InitialVal, F1)
+    animateOnePendulum(theta, 500, 20, "problem5_a")
 
+    prob5InitialVal = np.matrix([[np.pi/2], [0]])
+    theta = RungeKutta(500, 20, prob5InitialVal, F1)
+    animateOnePendulum(theta, 500, 20, "problem5_b")
+    
 def prob6():
     print("\n---- Problem 6")
     print("Not done")
