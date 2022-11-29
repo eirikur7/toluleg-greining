@@ -34,21 +34,22 @@ def F1(theta):
     return np.matrix([[z1],[z2]])
 
 def F2(theta):
-    """
-    Math function for a double pendulum
-    theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)'
-    """
+    """theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)' """
     m1,m2 = 1, 1
     L1,L2 = 2, 2
     ang1 = theta[0,0]
-    w1 = theta[2,0]
-    ang2 = theta[1,0]
+    w1 = theta[1,0]
+    ang2 = theta[2,0]
     w2 = theta[3,0]
     delta = ang2 - ang1
     z1 = w1
-    z2 = (m2*L1*(w1**2) * np.sin(delta) * np.cos(delta) + m2*g*np.sin(ang2)*np.cos(delta) + m2*L2*(w2**2)*np.sin(delta) - (m1+m2)*g*np.sin(ang1)) / ((m1+m2)*L1 - m2*L1*(np.cos(delta)**2))
+    z2_numinator = ( (m2*L1*(w1**2) * np.sin(delta) * np.cos(delta)) + (m2*g*np.sin(ang2)*np.cos(delta)) + (m2*L2*(w2**2)*np.sin(delta)) - ((m1+m2)*g*np.sin(ang1)) )
+    z2_denominator = ( ((m1+m2)*L1) - (m2*L1*(np.cos(delta)**2)) )
+    z2 = z2_numinator / z2_denominator
     z3 = w2
-    z4 = (w2*np.sin(delta)*np.cos(delta) + (m1+m2)*(g*np.sin(ang1)*np.cos(delta) - L1*(w1**2)*np.sin(delta) -g*np.sin(ang2))) / ((m1+m2)*L2 - m2*L2*(np.cos(delta)**2))
+    z4_numinator = ( (-m2*L2*(w2**2)*np.sin(delta)*np.cos(delta)) +  ((m1+m2)*((g*np.sin(ang1)*np.cos(delta)) - (L1*(w1**2)*np.sin(delta)) - (g*np.sin(ang2)))) )
+    z4_denominator = ( ((m1+m2)*L1) - (m2*L2*(np.cos(delta)**2)))
+    z4 = z4_numinator / z4_denominator
     return np.matrix([[z1],[z2],[z3],[z4]])
 
 def euler(n, T, initalValues, F):
