@@ -72,7 +72,10 @@ def RungeKutta(n, T, initalValues, F):
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + (k1 + 2*k2 + 2*k3 + k4)*(h/6)
     return theta
 
-
+def penduliFinalPosition(initial_value, n, T):
+    '''Returns the position of the penduli at the end of the time interval'''
+    theta = euler(n, T, initial_value, F2)
+    return theta[0,-1], theta[2,-1]
 
 #/-------------------------Animation and Plots-------------------------/
 def animateOnePendulum(theta, n, T, name):
@@ -162,18 +165,40 @@ def animateAllPendulums(theta1, theta2, n, T, name):
     ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
     printFigText(name)
 
-def plotOnePendulum(theta, n, T, verbose=True, name=None, fig=None, ax=None):
+def plotOnePendulum(theta, n, T, verbose=True, name=None, fig=None, ax=None, label=None):
     if verbose: print(PLOT_TEXT)
     x = np.linspace(0, T, n+1)
     y = theta[0]
 
     if fig == None and ax == None:
         fig, ax = plt.subplots(1,1)
-    ax.grid()
-    ax.plot(x, y)
+    ax.grid(visible=True)
+    ax.plot(x, y, label=label)
+    ax.legend(loc="upper right")
     ax.set_xlabel("Time")
     ax.set_ylabel("Angle")
-    # ax.set_title("Angle of one pendulum over time")
+
+    if name != None:
+        fig.savefig(PLOT_PATH.format(name))
+
+    if verbose: printFigText(name)
+    return fig, ax
+
+def plotTwoPendulums(theta, n, T, verbose=True, name=None, fig=None, ax=None, label=None):
+    if verbose: print(PLOT_TEXT)
+    x = np.linspace(0, T, n+1)
+    y1 = theta[0]
+    y2 = theta[2]
+
+    if fig == None and ax == None:
+        fig, ax = plt.subplots(1,1)
+    ax.grid(visible=True)
+    if label:
+        ax.plot(x, y1, label=label[0])
+        ax.plot(x, y2, label=label[1])
+    ax.legend(loc="upper right")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Angle")
 
     if name != None:
         fig.savefig(PLOT_PATH.format(name))
@@ -213,30 +238,50 @@ def prob4():
     theta4 = euler(500, 20, prob4InitialVal, F1)
 
     animateOnePendulum(theta4, 500, 20, "problem4")
-    fig, ax = plotOnePendulum(theta=theta3, n=500, T=20, verbose=False, name=None)
-    plotOnePendulum(theta=theta4, n=500, T=20, verbose=True, name="problem4_combined_w_prob3", fig=fig, ax=ax)
+    fig, ax = plotOnePendulum(theta=theta3, n=500, T=20, verbose=False, name=None, label="Problem 3")
+    plotOnePendulum(theta=theta4, n=500, T=20, verbose=True, name="problem4_combined_w_prob3", fig=fig, ax=ax, label="Problem 4")
     plotOnePendulum(theta=theta4, n=500, T=20, verbose=True, name="problem4")
-
 
 def prob5():
     print("\n---- Problem 5")
     prob5InitialVal = np.matrix([[np.pi/12], [0]])
-    theta = RungeKutta(500, 20, prob5InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "problem5_a")
+    theta5a = RungeKutta(500, 20, prob5InitialVal, F1)
+    animateOnePendulum(theta5a, 500, 20, "problem5_a")
+    fig, ax = plotOnePendulum(theta5a, 500, 20, name="problem5_a", label="θ(0)=π/12")
 
     prob5InitialVal = np.matrix([[np.pi/2], [0]])
-    theta = RungeKutta(500, 20, prob5InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "problem5_b")
-    
+    theta5b = RungeKutta(500, 20, prob5InitialVal, F1)
+    animateOnePendulum(theta5b, 500, 20, "problem5_b")
+    plotOnePendulum(theta5b, 500, 20, name="problem5_b")
+
+    # combine plots for comparison
+    plotOnePendulum(theta5b, 500, 20, verbose=False, name='problem5_combined_ab', fig=fig, ax=ax, label="θ(0)=π/2")
+
+    # combine problems 5 with 3 and 4
+    # problem 3 values
+    prob3InitialVal = np.matrix([[np.pi/12], [0]])
+    theta3 = euler(500, 20, prob3InitialVal, F1)
+
+    # problem 4 values
+    prob4InitialVal = np.matrix([[np.pi/2], [0]])
+    theta4 = euler(500, 20, prob4InitialVal, F1)
+
+    fig, ax = plotOnePendulum(theta=theta3, n=500, T=20, verbose=False, name=None, label="Eueler, θ(0)=π/12")
+    plotOnePendulum(theta=theta5a, n=500, T=20, verbose=False, name='problem5a_combine_w_prob3', fig=fig, ax=ax, label="Runge-Kutta, θ(0)=π/12")
+
+    fig, ax = plotOnePendulum(theta=theta4, n=500, T=20, verbose=False, name=None, label="Eueler, theta= pi/2")
+    plotOnePendulum(theta=theta5b, n=500, T=20, verbose=False, name='problem5b_combine_w_prob4', fig=fig, ax=ax, label="Runge-Kutta, θ(0)=π/2")
+  
 def prob6():
     print("\n---- Problem 6")
-    print("Not done")
+    print("See report for the math.")
 
 def prob7():
     print("\n---- Problem 7")
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     theta = euler(200, 8, prob6InitialVal, F2)
     animateTwoPendulums(theta, 200, 8, "problem7")
+    plotTwoPendulums(theta=theta, n=200, T=20, name="problem7", label=["θ(0)=π/3", "θ(0)=π/6"])
 
 def prob8():
     print("\n---- Problem 8")
@@ -250,9 +295,15 @@ def prob8():
 
 def prob9():
     print("\n---- Problem 9")
-    print("Not done")
+    initial_values = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    n_values = [100, 200, 400, 800, 1600, 3200, 6400]
+    T = 20
+    for initial_val in initial_values:
+        for n in n_values:
+            pos1, pos2 = penduliFinalPosition(initial_val, n, T)
 
 def prob10():
+
     print("\n---- Problem 10")
     print("Not done")
     
@@ -269,19 +320,19 @@ def prob13():
     print("Not done")
 
 if __name__ == "__main__":
-    # prob1()
-    # prob2()
-    # prob3()
+    prob1()
+    prob2()
+    prob3()
     prob4()
-    # prob5()
-    # prob6()
-    # prob7()
-    # prob8()
-    # prob9()
-    # prob10()
-    # prob11()
-    # prob12()
-    # prob13()
+    prob5()
+    prob6()
+    prob7()
+    prob8()
+    prob9()
+    prob10()
+    prob11()
+    prob12()
+    prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
     # question = getInput(question_string, question_available)
