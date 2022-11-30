@@ -147,21 +147,21 @@ def RungeKutta(n, T, initalValues, F):
 def prob3():
     prob3InitialVal = np.matrix([[np.pi/12], [0]])
     theta = euler(500, 20, prob3InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "proj2Material\prob3.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob3.gif")
 
 def prob4():
     prob4InitialVal = np.matrix([[np.pi/2], [0]])
     theta = euler(500, 20, prob4InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "proj2Material\prob4.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob4.gif")
 
 def prob5():
     prob5InitialVal = np.matrix([[np.pi/12], [0]])
     theta = RungeKutta(500, 20, prob5InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "proj2Material\prob5a.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob5a.gif")
 
     prob5InitialVal = np.matrix([[np.pi/2], [0]])
     theta = RungeKutta(500, 20, prob5InitialVal, F1)
-    animateOnePendulum(theta, 500, 20, "proj2Material\prob5b.gif")
+    animateOnePendulum(theta, 500, 20, "hrafnljoti\prob5b.gif")
     
 # Double pendulum
 
@@ -179,21 +179,21 @@ def prob6():
 
 def prob7():
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta = euler(200, 8, prob6InitialVal, F2)
-    animateTwoPendulums(theta, 200, 8, "proj2Material\prob6.gif")
+    theta = RungeKutta(200, 8, prob6InitialVal, F2)
+    animateTwoPendulums(theta, 200, 8, "hrafnljoti\prob7.gif")
 
 def prob8():
     n = 200
     T = 8
     prob8InitialVal1 = np.matrix([[np.pi/3], [0]])
     prob8InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta1 = euler(n, T, prob8InitialVal1, F1)
-    theta2 = euler(n, T, prob8InitialVal2, F2)
-    animateAllPendulums(theta1, theta2, n, T, "proj2Material\prob8.gif")
+    theta1 = RungeKutta(n, T, prob8InitialVal1, F1)
+    theta2 = RungeKutta(n, T, prob8InitialVal2, F2)
+    animateAllPendulums(theta1, theta2, n, T, "hrafnljoti\prob8.1.gif")
 
 if __name__ == "__main__":
-    prob2()
-    prob3()
-    prob4()
-    prob7()
+    # prob2()
+    # prob3()
+    # prob4()
+    # prob7()
     prob8()
