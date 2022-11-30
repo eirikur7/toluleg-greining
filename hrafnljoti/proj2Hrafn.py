@@ -157,8 +157,8 @@ def prob8():
 
 
 if __name__ == "__main__":
-    prob2()
-    prob3()
-    prob4()
-    prob7()
+    # prob2()
+    # prob3()
+    # prob4()
+    # prob7()
     prob8()
