@@ -174,9 +174,24 @@ def prob8():
 
 
 def prob9():
-    prob9InitialVal = np.matrix([[np.pi*0.99], [0], [np.pi], [0]])
-    theta = RungeKutta(500, 20, prob9InitialVal, F2)
-    animateTwoPendulums(theta, 500, 20, "marteinnagaeti\prob9.gif")
+    estimate_theta = [0]*100
+    for i in range(100):
+        prob9InitialVal = np.matrix([[np.pi*i*0.01], [0], [np.pi*i*0.01], [0]])
+        estimate_theta[i] = RungeKutta(12800, 20, prob9InitialVal, F2)[:,12800]
+    n = 100
+    n_array = []
+    mean_error_array = []
+    while n <= 6400:
+        error_array = [0]*100
+        for i in range(100):
+            prob9InitialVal = np.matrix([[np.pi*i*0.01], [0], [np.pi*i*0.01], [0]])
+            error_array[i] = np.linalg.norm(estimate_theta[i] - RungeKutta(n, 20, prob9InitialVal, F2)[:,n])
+        mean_error = np.mean(error_array)
+        mean_error_array.append(mean_error)
+        n_array.append(n)
+        print(n)
+        n = n*2
+    plt.plot(np.log10(n_array),np.log10(mean_error_array))
 
 
 if __name__ == "__main__":
