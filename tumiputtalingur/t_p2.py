@@ -63,7 +63,6 @@ def prob5():
     
 
 # Double pendulum
-
 #d^2*theta1/dt^2 = theta1'' =
 #(m^2*L_1*w_1^2*sin(delta)*cos(delta) + m_2*g*sin(theta_2)*cos(delta)+m_2*L_2*w_2^2*sin(delta)-(m_1+m_2)*g*sin(theta_1))/(m_1+m_2*sin(delta)^2)
 

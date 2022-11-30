@@ -165,6 +165,45 @@ def animateAllPendulums(theta1, theta2, n, T, name):
     ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
     printFigText(name)
 
+def animateTwoDoublePendulums(theta1, theta2, n, T, name):
+    print(ANIMATION_TEXT)
+    def animate(i):
+        line1_1.set_data([0, x1_1[i]], [0, y1_1[i]])
+        line2_1.set_data([x1_1[i], x2_1[i]], [y1_1[i], y2_1[i]])
+
+        line1_2.set_data([0,x1_2[i]], [0,y1_2[i]])
+        line2_2.set_data([x1_2[i], x2_2[i]], [y1_2[i], y2_2[i]])
+        if i != 0:
+            trace1.set_data(x2_1[0:i], y2_1[0:i])
+            trace2.set_data(x2_2[0:i], y2_2[0:i])
+    
+    L = 2
+    x1_1 = np.cos(theta1[0]-(np.pi/2)) * L
+    y1_1 = np.sin(theta1[0]-(np.pi/2)) * L
+    y2_1 = (np.sin(theta1[2]-(np.pi/2)) * L) + y1_1
+    x2_1 = (np.cos(theta1[2]-(np.pi/2)) * L) + x1_1
+
+    x1_2 = np.cos(theta2[0]-(np.pi/2)) * L
+    y1_2 = np.sin(theta2[0]-(np.pi/2)) * L
+    x2_2 = (np.cos(theta2[2]-(np.pi/2)) * L) + x1_2
+    y2_2 = (np.sin(theta2[2]-(np.pi/2)) * L) + y1_2
+
+    fig,ax = plt.subplots(1,1)
+    ax.grid()
+    line1_1, = plt.plot([], [], 'k-', linewidth=3)
+    line2_1, = plt.plot([], [], 'r-', linewidth=3)
+    line1_2, = plt.plot([], [], 'b-', linewidth=3)
+    line2_2, = plt.plot([], [], 'g-', linewidth=3)
+    trace1, = plt.plot([], [], 'k--')
+    trace2, = plt.plot([], [], 'g--')
+
+    ax.set_ylim(-4.5, 4.5)
+    ax.set_xlim(-4.5, 4.5)
+    ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
+    ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
+    printFigText(name)
+
+
 def plotOnePendulum(theta, n, T, verbose=True, name=None, fig=None, ax=None, label=None):
     if verbose: print(PLOT_TEXT)
     x = np.linspace(0, T, n+1)
@@ -307,32 +346,63 @@ def prob10():
     print("\n---- Problem 10")
     print("Not done")
     
+    
 def prob11():
     print("\n---- Problem 11")
-    print("Not done")
+    
+    #Problem with T = 40
+    #Need to see the error. i.e. numerical
+    prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    t = 40
+    theta1 = euler(200,t, prob11InitialVal1, F2)
+    k = [1,2,3,4,5]
+    for i in k:
+        prob11InitialVal2Error = prob11InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
+        theta2 = euler(200, t, prob11InitialVal2Error, F2)
+        animateTwoDoublePendulums(theta1,theta2, 200, t, "problem11_k_{}".format(i))
+
 
 def prob12():
     print("\n---- Problem 12")
-    print("Not done")
+    prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    T = 40
+    n = 200
+    theta1 = euler(n, T, prob12InitialVal1, F2)
+    k = [1,2,3,4,5,6,7,8,9,10,11,12]
+    for i in k:
+        prob12InitialVal2Error = prob12InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
+        theta2 = euler(n, T, prob12InitialVal2Error, F2)
+        plotTwoPendulums(theta1,theta2, n, T, "problem12_k_{}".format(i))
 
 def prob13():
     print("\n---- Problem 13")
     print("Not done")
+    #Ideas:
+    # -Add an extra pendulum
+    # -Add a spring
+    # -add mass to the pendulums
+    # -add friction
+    # -edit the length of the pendulums
+    # -Analyze different initial conditions
+    # -Analyze different values of g, i.e. the moon, mars, etc.
+
 
 if __name__ == "__main__":
-    prob1()
-    prob2()
-    prob3()
-    prob4()
-    prob5()
-    prob6()
-    prob7()
-    prob8()
-    prob9()
-    prob10()
+    # prob1()
+    # prob2()
+    # prob3()
+    # prob4()
+    # prob5()
+    # prob6()
+    # prob7()
+    # prob8()
+    # prob9()
+    # prob10()
     prob11()
-    prob12()
-    prob13()
+    # prob12()
+    # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
     # question = getInput(question_string, question_available)
