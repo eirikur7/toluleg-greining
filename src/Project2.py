@@ -58,6 +58,7 @@ def euler(n, T, initalValues, F):
     theta[:,0:1] = initalValues
     for i in range(n):
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + F(theta[:,i:(i+1)])*h
+        print(theta)
     return theta
 
 def RungeKutta(n, T, initalValues, F):
@@ -368,7 +369,7 @@ def prob12():
     prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     T = 40
-    n = 200
+    n = 1000
     theta1 = euler(n, T, prob12InitialVal1, F2)
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
     for i in k:
@@ -380,7 +381,6 @@ def prob13():
     print("\n---- Problem 13")
     print("Not done")
     #Ideas:
-    # -Add an extra pendulum
     # -Add a spring
     # -add mass to the pendulums
     # -add friction
