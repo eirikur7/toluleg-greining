@@ -356,25 +356,37 @@ def prob11():
     prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     t = 40
-    theta1 = euler(200,t, prob11InitialVal1, F2)
+    n = 1000
+    theta1 = RungeKutta(n,t, prob11InitialVal1, F2)
     k = [1,2,3,4,5]
+    results = np.zeros((len(k)+1,2))
+    # Resulst 0,0 should be the last value of theta1[0] and results 0,1 should be the last value of theta1[2]
+    results[0,0] = theta1[0,-1]
+    results[0,1] = theta1[2,-1]
     for i in k:
-        prob11InitialVal2Error = prob11InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = euler(200, t, prob11InitialVal2Error, F2)
-        animateTwoDoublePendulums(theta1,theta2, 200, t, "problem11_k_{}".format(i))
-
-
+        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
+        theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
+        animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
+        results[i,0] = theta2[0,-1]
+        results[i,1] = theta2[2,-1]
+    #compare the results
+    print("Results for T = 40")
+    for i in range(1,len(k)+1):
+        print("k = {} : theta1 = {} and theta2 = {}".format(i, results[i,0], results[i,1]))
+        print("error theta1 = {}, error theta2 = {}".format( np.linalg.norm(results[0,0]-results[i,0]), np.linalg.norm(results[0,1]-results[i,1])))
+        print("\n") 
+    
 def prob12():
     print("\n---- Problem 12")
     prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     T = 40
     n = 1000
-    theta1 = euler(n, T, prob12InitialVal1, F2)
+    theta1 = RungeKutta(n, T, prob12InitialVal1, F2)
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
     for i in k:
         prob12InitialVal2Error = prob12InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = euler(n, T, prob12InitialVal2Error, F2)
+        theta2 = RungeKutta(n, T, prob12InitialVal2Error, F2)
         plotTwoPendulums(theta1,theta2, n, T, "problem12_k_{}".format(i))
 
 def prob13():

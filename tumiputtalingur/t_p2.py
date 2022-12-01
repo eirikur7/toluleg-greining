@@ -173,10 +173,10 @@ def animateTwoDoublePendulums(theta1, theta2, n, T, name):
 
         line1_2.set_data([0,x1_2[i]], [0,y1_2[i]])
         line2_2.set_data([x1_2[i], x2_2[i]], [y1_2[i], y2_2[i]])
+        time_text.set_text(time_template % (i*T/n))
         if i != 0:
             trace1.set_data(x2_1[0:i], y2_1[0:i])
             trace2.set_data(x2_2[0:i], y2_2[0:i])
-    
     L = 2
     x1_1 = np.cos(theta1[0]-(np.pi/2)) * L
     y1_1 = np.sin(theta1[0]-(np.pi/2)) * L
@@ -190,12 +190,17 @@ def animateTwoDoublePendulums(theta1, theta2, n, T, name):
 
     fig,ax = plt.subplots(1,1)
     ax.grid()
+
+    time_template = 'time = %.1fs'
+    time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
+
     line1_1, = plt.plot([], [], 'k-', linewidth=3)
     line2_1, = plt.plot([], [], 'r-', linewidth=3)
     line1_2, = plt.plot([], [], 'b-', linewidth=3)
     line2_2, = plt.plot([], [], 'g-', linewidth=3)
     trace1, = plt.plot([], [], 'r--')
     trace2, = plt.plot([], [], 'g--')
+   
 
     ax.set_ylim(-4.5, 4.5)
     ax.set_xlim(-4.5, 4.5)
@@ -347,43 +352,69 @@ def prob10():
     print("Not done")
     
     
-def prob11():
-    print("\n---- Problem 11")
-    
+def prob11(k = [1,2,3,4,5],n=1000,t=40,gif=True):
+    if gif:
+        print("\n---- Problem 11")
     #Problem with T = 40
     #Need to see the error. i.e. numerical
     prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
-    t = 40
-    n = 1000
     theta1 = RungeKutta(n,t, prob11InitialVal1, F2)
-    k = [1,2,3,4,5]
-    results = np.zeros((len(k)+1,2))
-    # Resulst 0,0 should be the last value of theta1[0] and results 0,1 should be the last value of theta1[2]
-    results[0,0] = theta1[0,-1]
-    results[0,1] = theta1[2,-1]
+    results = np.zeros((4,(n+1)*(len(k)+1)))
+    #add all the values from theta1 to results
+    for i in range(0,4):
+        results[i,0:(n+1)] = theta1[i,:]
+
     for i in k:
         prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
         theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
-        animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
-        results[i,0] = theta2[0,-1]
-        results[i,1] = theta2[2,-1]
+        if gif:
+            animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
+        for j in range(0,4):
+            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]    
+    #compare the results
+    for i in k:
+        print("k = {}, i.e. ε = 10^-{}".format(i,i))
+        done1 = False
+        done2 = False
+        for j in range(n):
+            theta1margin = abs(results[0,j]*0.01)
+            theta2margin = abs(results[2,j]*0.01)
+            if (abs(results[0,((n+1)*i)+j]) - abs(results[0,j])) > theta1margin and not done1:
+                done1 = True
+                print("theta 1 is not within 1% of the control at n = {}".format(j))
 
+            if (abs(results[2,((n+1)*i)+j]) - abs(results[2,j])) > theta2margin and not done2:
+                print("theta 2 is not within 1% of the control at n = {}".format(j))
+                done2 = True
 
-
+            if done1 and done2:
+                break
+        if not done1:
+            print("theta 1 is always within 1% of the control for n = {} and T = {}".format(n,t))
+        if not done2:
+            print("theta 2 is always within 1% of the control for n = {} and T = {}".format(n,t))
+        print("\n")
+        
+    
 def prob12():
     print("\n---- Problem 12")
     prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     T = 40
-    n = 1000
-    theta1 = RungeKutta(n, T, prob12InitialVal1, F2)
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
-    for i in k:
-        prob12InitialVal2Error = prob12InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = RungeKutta(n, T, prob12InitialVal2Error, F2)
-        plotTwoPendulums(theta1,theta2, n, T, "problem12_k_{}".format(i))
+    n = 1000
+    print("We begin by studying the error in the Runge-Kutta method for the double pendulum for different values of k. i.e. 10^(-k).")
+    prob11(k,n,T,False)
 
+    print("Now we study the error in the Runge-Kutta method for the double pendulum for different values of n.")
+    n_value = 1000
+    for i in range(0,5):
+        print("n = {}".format(n_value))
+        prob11([12],n_value,T,False)
+        n_value = n_value*2
+    #ÉG STOPPAÐI HÉR
+    
 def prob13():
     print("\n---- Problem 13")
     print("Not done")
@@ -407,8 +438,8 @@ if __name__ == "__main__":
     # prob8()
     # prob9()
     # prob10()
-    prob11()
-    # prob12()
+    # prob11()
+    prob12()
     # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
