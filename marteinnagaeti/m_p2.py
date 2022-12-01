@@ -174,24 +174,46 @@ def prob8():
 
 
 def prob9():
-    estimate_theta = [0]*100
-    for i in range(100):
-        prob9InitialVal = np.matrix([[np.pi*i*0.01], [0], [np.pi*i*0.01], [0]])
-        estimate_theta[i] = RungeKutta(12800, 20, prob9InitialVal, F2)[:,12800]
+    num_of_InitialVal = 20
+    estimate_theta = np.zeros((num_of_InitialVal,4))
+    for i in range(1, num_of_InitialVal+1):
+        prob9InitialVal = np.matrix([[np.pi*i*0.02], [0], [np.pi*i*0.02], [0]])
+        estimate_theta[i-1] = RungeKutta(12800, 20, prob9InitialVal, F2)[:,12800]
     n = 100
-    n_array = []
-    mean_error_array = []
+    n_array = np.zeros(7)
+    error_array = np.zeros((7,num_of_InitialVal))
+    counter = 0
     while n <= 6400:
-        error_array = [0]*100
-        for i in range(100):
-            prob9InitialVal = np.matrix([[np.pi*i*0.01], [0], [np.pi*i*0.01], [0]])
-            error_array[i] = np.linalg.norm(estimate_theta[i] - RungeKutta(n, 20, prob9InitialVal, F2)[:,n])
-        mean_error = np.mean(error_array)
-        mean_error_array.append(mean_error)
-        n_array.append(n)
+        temp_error_array = np.zeros(num_of_InitialVal)
+        for i in range(1, num_of_InitialVal+1):
+            prob9InitialVal = np.matrix([[np.pi*i*0.02], [0], [np.pi*i*0.02], [0]])
+            temp_error_array[i-1] = np.linalg.norm(estimate_theta[i-1] - RungeKutta(n, 20, prob9InitialVal, F2)[:,n])
+        # mean_error = np.mean(error_array)
+        error_array[counter] = temp_error_array
+        n_array[counter] = n
+        counter += 1
         print(n)
         n = n*2
-    plt.plot(np.log10(n_array),np.log10(mean_error_array))
+
+    slope = np.zeros(num_of_InitialVal)
+
+    for i in range(0,num_of_InitialVal):
+        slope[i] = np.polyfit(np.log(n_array), np.log(error_array[:,i]), 1)[0]
+    print(slope)
+    print(np.mean(slope))
+    # plt.plot(np.log10(n_array),np.log10(mean_error_array), 'ro')
+    # plt.plot(np.log10(n_array),np.log10(mean_error_array))
+    # plt.xlabel("log10(n)")
+    # plt.ylabel("log10(mean error)")
+    # plt.title("Problem 9")
+    # plt.grid()
+    # plt.show()
+
+def prob9test():
+    prob9InitialVal = np.matrix([[np.pi/2], [0], [np.pi/2], [0]])
+    theta = RungeKutta(200, 20, prob9InitialVal, F2)
+    animateTwoPendulums(theta, 200, 20, "marteinnagaeti\prob9.gif")
+  
 
 
 if __name__ == "__main__":
@@ -200,4 +222,5 @@ if __name__ == "__main__":
     # prob4()
     # prob7()
     # prob8()
-    prob9()
+    # prob9()
+    prob9test()
