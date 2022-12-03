@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import PillowWriter
 from matplotlib import animation
+import math
 g = 9.81
 L1 = L2 = 2 #m
 m1 = m2 = 1 #kg
@@ -245,18 +246,56 @@ def plotTwoPendulums(theta, n, T, verbose=True, name=None, fig=None, ax=None, la
     if verbose: printFigText(name)
     return fig, ax
 
+def changeThetaBetween2Pi(theta, nrPends):
+    tempTheta = np.zeros((nrPends, theta.shape[1]))
+    for i in range(theta.shape[1]):
+        # q = int(theta[0,i]/(2*np.pi))
+        if((theta[0,i] > np.pi) or (theta[0,i] < -np.pi)):
+            modPi = (theta[0, i])%(np.pi)
+            mod2Pi = (theta[0, i])%(2*np.pi)
+            tempTheta[0, i] = 2*modPi - mod2Pi
+            # if(theta[0, i] > np.pi):
+            #     tempTheta[0, i] = (theta[0, i]%(np.pi)) - np.pi
+            # else:
+            #     tempTheta[0, i] = (theta[0, i]%(np.pi))
+        else:
+            tempTheta[0, i] = theta[0, i]
+
+        if(nrPends == 2):
+            if((theta[2,i] > np.pi) or (theta[2,i] < -np.pi)):
+                modPi = (theta[2, i])%(np.pi)
+                mod2Pi = (theta[2, i])%(2*np.pi)
+                tempTheta[1, i] = 2*modPi - mod2Pi
+                # if(theta[2, i] > np.pi):
+                #     tempTheta[1, i] = (theta[2, i]%(np.pi)) - np.pi
+                # else:
+                #     tempTheta[1, i] = (theta[2, i]%(np.pi))
+                # print("Theta={}, newTheta={}, modPi={}, mod2Pi={}".format(theta[2,i]/np.pi,tempTheta[1, i]/np.pi, ((theta[2,i])%(np.pi))/np.pi, ((theta[2,i])%(2*np.pi))/np.pi) )
+                
+            else:
+                tempTheta[1, i] = theta[2, i]
+        
+    return tempTheta 
+
 def animateOnlyParametrizedCurve(theta, n, T, name):
     def animate(i):
         if i != 0:
             trace.set_data(x[0:i], y[0:i])
 
-    x = theta[0]
-    y = theta[2]
+    tempTheta = changeThetaBetween2Pi(theta, 2)
+    x = tempTheta[0]
+    y = tempTheta[1]
+
+    # x = 0.5*np.pi - ((theta[0])%(2*np.pi))
+    # y = 0.5*np.pi - ((theta[2])%(2*np.pi))
 
     fig, ax = plt.subplots(1,1)
     trace, = ax.plot([], [], 'r', linewidth=0.5)
-    ax.set_ylim(-2*(np.pi),2*(np.pi))
-    ax.set_xlim(-2*(np.pi),2*(np.pi))
+    ax.set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax.set_xlim(-(np.pi + 0.5), (np.pi + 0.5))
+    # ax.set_title("Theta 1")
+    ax.set_xlabel("Theta 1 [rad]")
+    ax.set_ylabel("Theta 2 [rad]")
     ax.grid()
 
     ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
@@ -272,8 +311,9 @@ def animateParametrizedCurve(theta, n, T,time, name):
             ang1.set_data(time[0:i], x[0:i])
             ang2.set_data(time[0:i], y[0:i])
 
-    x = theta[0]
-    y = theta[2]
+    tempTheta = changeThetaBetween2Pi(theta, 2)
+    x = tempTheta[0]
+    y = tempTheta[1]
 
     L = 2
     x1 = np.cos(theta[0]-(np.pi/2)) * L
@@ -285,15 +325,16 @@ def animateParametrizedCurve(theta, n, T,time, name):
     # ax[0:-1,0:-1].grid()
 
     ang1, = ax[0, 0].plot([], [], 'g', linewidth=1)
-    ax[0, 0].set_ylim(-2*(np.pi),2*(np.pi))
+    # ax[0, 0].set_ylim(np.min(x) - 0.2, np.max(x) + 0.2)
+    ax[0, 0].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
     ax[0, 0].set_xlim(np.min(time),np.max(time))
     ax[0, 0].grid()
     # ax[0, 0].set_title("Theta 1")
-    ax[0, 0].set_xlabel("Time[s]")
+    # ax[0, 0].set_xlabel("Time[s]")
     ax[0, 0].set_ylabel("Theta 1 [rad]")
 
     ang2, = ax[1, 0].plot([], [], 'b', linewidth=1)
-    ax[1, 0].set_ylim(-2*(np.pi),2*(np.pi))
+    ax[1, 0].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
     ax[1, 0].set_xlim(np.min(time),np.max(time))
     ax[1, 0].grid()
     # ax[1, 1].set_title("Theta 2")
@@ -302,26 +343,15 @@ def animateParametrizedCurve(theta, n, T,time, name):
 
     pend1, = ax[0,1].plot([], [], 'g', linewidth=3)
     pend2, = ax[0,1].plot([], [], 'b', linewidth=3)
-    ax[0, 1].set_ylim(-(L*2 + 0.5),L*2 + 0.5)
-    ax[0, 1].set_xlim(-(L*2 + 0.5),(L*2 + 0.5))
+    ax[0, 1].set_ylim(-(L*2 + 0.5), L*2 + 0.5)
+    ax[0, 1].set_xlim(-(L*2 + 0.5), (L*2 + 0.5))
     ax[0, 1].grid()
     # ax[1, 0].set_title("Pendulums")
     
-
     trace, = ax[1,1].plot([], [], 'r', linewidth=0.5)
-    ax[1, 1].set_ylim(-2*(np.pi),2*(np.pi))
-    ax[1, 1].set_xlim(-2*(np.pi),2*(np.pi))
+    ax[1, 1].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax[1, 1].set_xlim(-(np.pi + 0.5), (np.pi + 0.5))
     ax[1, 1].grid()
-    # ax[1, 1].set_title("Pendulums")
-    # for i in range(2):
-    #     for ii in range(2):
-    #         ax[i, ii].set_ylim(-10,10)
-    #         ax[i, ii].set_xlim(-10,10)
-    #         ax[i, ii].grid()
-    # ax[0:-1:,0:-1].set_ylim(-4.5, 4.5)
-    # ax[:,:].set_xlim(-4.5, 4.5)
-    # fig.show()
-    # plt.show()
     ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
     ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
     printFigText(name)
@@ -399,7 +429,7 @@ def prob6():
 def prob7():
     print("\n---- Problem 7")
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta = euler(200, 8, prob6InitialVal, F2)
+    theta = RungeKutta(200, 8, prob6InitialVal, F2)
     animateTwoPendulums(theta, 200, 8, "problem7")
     plotTwoPendulums(theta=theta, n=200, T=20, name="problem7", label=["θ(0)=π/3", "θ(0)=π/6"])
 
@@ -409,8 +439,8 @@ def prob8():
     T = 8
     prob8InitialVal1 = np.matrix([[np.pi/3], [0]])
     prob8InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta1 = euler(n, T, prob8InitialVal1, F1)
-    theta2 = euler(n, T, prob8InitialVal2, F2)
+    theta1 = RungeKutta(n, T, prob8InitialVal1, F1)
+    theta2 = RungeKutta(n, T, prob8InitialVal2, F2)
     animateAllPendulums(theta1, theta2, n, T, "problem8")
 
 def prob9():
@@ -422,6 +452,7 @@ def prob9():
         for n in n_values:
             pos1, pos2 = penduliFinalPosition(initial_val, n, T)
 
+   
 def prob10():
     n = 400
     T = 20
@@ -429,10 +460,16 @@ def prob10():
     h = T/n
     for i in range(n):
         time[i,0] = h*i
-    initialValues = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    # initialValues = np.matrix([[3*np.pi/8], [0], [np.pi/4], [0]])
+    # theta = RungeKutta(n, T, initialValues, F2)
+    # animateParametrizedCurve(theta, n, T, time, "problem10.1a")
+    # animateOnlyParametrizedCurve(theta, n, T, "problem10.1b")
+
+    # initialValues = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    initialValues = np.matrix([[1.01*np.pi/4], [0], [np.pi/4], [0]])
     theta = RungeKutta(n, T, initialValues, F2)
-    animateParametrizedCurve(theta, n, T, time, "prob10.1")
-    animateOnlyParametrizedCurve(theta, n, T, "prob10.2")
+    animateParametrizedCurve(theta, n, T, time, "problem10.4a")
+    animateOnlyParametrizedCurve(theta, n, T, "problem10.4b")
     print("\n---- Problem 10")
 
 
@@ -488,6 +525,8 @@ if __name__ == "__main__":
     # prob7()
     # prob8()
     # prob9()
+    # print((np.pi - ((3.5*np.pi)%(2*np.pi)))/np.pi  )
+    # print( ( ((1.25*np.pi)%(np.pi)) )/np.pi )
     prob10()
     # prob11()
     # prob12()
