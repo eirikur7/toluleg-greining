@@ -246,6 +246,95 @@ def plotTwoPendulums(theta, n, T, verbose=True, name=None, fig=None, ax=None, la
     if verbose: printFigText(name)
     return fig, ax
 
+def changeThetaBetween2Pi(theta, nrPends):
+    '''To make the angle of theta between -pi and pi. nrPends = number of pendulums used. Returns [theta1, theta2]'''
+    tempTheta = np.zeros((nrPends, theta.shape[1]))
+    for i in range(theta.shape[1]):
+        if((theta[0,i] > np.pi) or (theta[0,i] < -np.pi)):
+            modPi = (theta[0, i])%(np.pi)
+            mod2Pi = (theta[0, i])%(2*np.pi)
+            tempTheta[0, i] = 2*modPi - mod2Pi
+        else:
+            tempTheta[0, i] = theta[0, i]
+
+        if(nrPends == 2):
+            if((theta[2,i] > np.pi) or (theta[2,i] < -np.pi)):
+                modPi = (theta[2, i])%(np.pi)
+                mod2Pi = (theta[2, i])%(2*np.pi)
+                tempTheta[1, i] = 2*modPi - mod2Pi                
+            else:
+                tempTheta[1, i] = theta[2, i]
+        
+    return tempTheta 
+
+def animateOnlyParametrizedCurve(theta, n, T, name):
+    def animate(i):
+        if i != 0:
+            trace.set_data(x[0:i], y[0:i])
+
+    tempTheta = changeThetaBetween2Pi(theta, 2)
+    x = tempTheta[0]
+    y = tempTheta[1]
+
+    fig, ax = plt.subplots(1,1)
+    trace, = ax.plot([], [], 'r', linewidth=0.5)
+    ax.set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax.set_xlim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax.set_xlabel("Theta 1 [rad]")
+    ax.set_ylabel("Theta 2 [rad]")
+    ax.grid()
+
+    ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
+    ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
+    printFigText(name)
+
+def animateParametrizedCurve(theta, n, T,time, name):
+    def animate(i):
+        pend1.set_data([0, x1[i]], [0, y1[i]])
+        pend2.set_data([x1[i], x2[i]], [y1[i], y2[i]])
+        if i != 0:
+            trace.set_data(x[0:i], y[0:i])
+            ang1.set_data(time[0:i], x[0:i])
+            ang2.set_data(time[0:i], y[0:i])
+
+    tempTheta = changeThetaBetween2Pi(theta, 2)
+    x = tempTheta[0]
+    y = tempTheta[1]
+
+    L = 2
+    x1 = np.cos(theta[0]-(np.pi/2)) * L
+    y1 = np.sin(theta[0]-(np.pi/2)) * L
+    y2 = (np.sin(theta[2]-(np.pi/2)) * L) + y1
+    x2 = (np.cos(theta[2]-(np.pi/2)) * L) + x1
+
+    fig, ax = plt.subplots(2,2)
+    ang1, = ax[0, 0].plot([], [], 'g', linewidth=1)
+    ax[0, 0].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax[0, 0].set_xlim(np.min(time),np.max(time))
+    ax[0, 0].grid()
+    ax[0, 0].set_ylabel("Theta 1 [rad]")
+
+    ang2, = ax[1, 0].plot([], [], 'b', linewidth=1)
+    ax[1, 0].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax[1, 0].set_xlim(np.min(time),np.max(time))
+    ax[1, 0].grid()
+    ax[1, 0].set_xlabel("Time[s]")
+    ax[1, 0].set_ylabel("Theta 2 [rad]")
+
+    pend1, = ax[0,1].plot([], [], 'g', linewidth=3)
+    pend2, = ax[0,1].plot([], [], 'b', linewidth=3)
+    ax[0, 1].set_ylim(-(L*2 + 0.5), L*2 + 0.5)
+    ax[0, 1].set_xlim(-(L*2 + 0.5), (L*2 + 0.5))
+    ax[0, 1].grid()
+    
+    trace, = ax[1,1].plot([], [], 'r', linewidth=0.5)
+    ax[1, 1].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax[1, 1].set_xlim(-(np.pi + 0.5), (np.pi + 0.5))
+    ax[1, 1].grid()
+    ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
+    ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
+    printFigText(name)
+
 #/-------------------------Problems------------------------------------/
 def prob1():
     print("\n----Problem 1")
@@ -343,9 +432,34 @@ def prob9():
             pos1, pos2 = penduliFinalPosition(initial_val, n, T)
 
 def prob10():
+    n = 400
+    T = 20
+    time = np.zeros((n, 1))
+    h = T/n
+    for i in range(n):
+        time[i,0] = h*i
+    initialValues = np.matrix([[3*np.pi/8], [0], [np.pi/4], [0]])
+    theta = RungeKutta(n, T, initialValues, F2)
+    animateParametrizedCurve(theta, n, T, time, "problem10.1a")
+    animateOnlyParametrizedCurve(theta, n, T, "problem10.1b")
 
+    # initialValues = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    # initialValues = np.matrix([[1.01*np.pi/4], [0], [np.pi/4], [0]])
+    # theta = RungeKutta(n, T, initialValues, F2)
+    # animateParametrizedCurve(theta, n, T, time, "problem10.2a")
+    # animateOnlyParametrizedCurve(theta, n, T, "problem10.2b")
+
+    # initialValues = np.matrix([[np.pi/5], [0], [np.pi/10], [0]])
+    # initialValues = np.matrix([[1.01*np.pi/4], [0], [np.pi/4], [0]])
+    # theta = RungeKutta(n, T, initialValues, F2)
+    # animateParametrizedCurve(theta, n, T, time, "problem10.3a")
+    # animateOnlyParametrizedCurve(theta, n, T, "problem10.3b")
+    
+    # initialValues = np.matrix([[1.01*np.pi/4], [0], [np.pi/4], [0]])
+    # theta = RungeKutta(n, T, initialValues, F2)
+    # animateParametrizedCurve(theta, n, T, time, "problem10.4a")
+    # animateOnlyParametrizedCurve(theta, n, T, "problem10.4b")
     print("\n---- Problem 10")
-    print("Not done")
     
     
 def prob11():
@@ -356,25 +470,37 @@ def prob11():
     prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     t = 40
-    theta1 = euler(200,t, prob11InitialVal1, F2)
+    n = 1000
+    theta1 = RungeKutta(n,t, prob11InitialVal1, F2)
     k = [1,2,3,4,5]
+    results = np.zeros((len(k)+1,2))
+    # Resulst 0,0 should be the last value of theta1[0] and results 0,1 should be the last value of theta1[2]
+    results[0,0] = theta1[0,-1]
+    results[0,1] = theta1[2,-1]
     for i in k:
-        prob11InitialVal2Error = prob11InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = euler(200, t, prob11InitialVal2Error, F2)
-        animateTwoDoublePendulums(theta1,theta2, 200, t, "problem11_k_{}".format(i))
-
-
+        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
+        theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
+        animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
+        results[i,0] = theta2[0,-1]
+        results[i,1] = theta2[2,-1]
+    #compare the results
+    print("Results for T = 40")
+    for i in range(1,len(k)+1):
+        print("k = {} : theta1 = {} and theta2 = {}".format(i, results[i,0], results[i,1]))
+        print("error theta1 = {}, error theta2 = {}".format( np.linalg.norm(results[0,0]-results[i,0]), np.linalg.norm(results[0,1]-results[i,1])))
+        print("\n") 
+    
 def prob12():
     print("\n---- Problem 12")
     prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
     T = 40
     n = 1000
-    theta1 = euler(n, T, prob12InitialVal1, F2)
+    theta1 = RungeKutta(n, T, prob12InitialVal1, F2)
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
     for i in k:
         prob12InitialVal2Error = prob12InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = euler(n, T, prob12InitialVal2Error, F2)
+        theta2 = RungeKutta(n, T, prob12InitialVal2Error, F2)
         plotTwoPendulums(theta1,theta2, n, T, "problem12_k_{}".format(i))
 
 def prob13():
