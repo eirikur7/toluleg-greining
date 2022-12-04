@@ -505,46 +505,83 @@ def prob10():
     print("\n---- Problem 10")
     
     
-def prob11():
-    print("\n---- Problem 11")
-    
-    #Problem with T = 40
-    #Need to see the error. i.e. numerical
-    prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
-    prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
-    t = 40
-    n = 1000
+def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4,5],n=1000,t=40,gif=True):
+    if gif:
+        print("\n---- Problem 11")
+    prob11InitialVal1 = initial.copy()
+    prob11InitialVal2 = initial.copy()
     theta1 = RungeKutta(n,t, prob11InitialVal1, F2)
-    k = [1,2,3,4,5]
-    results = np.zeros((len(k)+1,2))
-    # Resulst 0,0 should be the last value of theta1[0] and results 0,1 should be the last value of theta1[2]
-    results[0,0] = theta1[0,-1]
-    results[0,1] = theta1[2,-1]
-    for i in k:
-        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
-        animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
-        results[i,0] = theta2[0,-1]
-        results[i,1] = theta2[2,-1]
-    #compare the results
-    print("Results for T = 40")
+    results = np.zeros((4,(n+1)*(len(k)+1)))
+    #add all the values from theta1 to results
+    for i in range(0,4):
+        results[i,0:(n+1)] = theta1[i,:]
+
     for i in range(1,len(k)+1):
-        print("k = {} : theta1 = {} and theta2 = {}".format(i, results[i,0], results[i,1]))
-        print("error theta1 = {}, error theta2 = {}".format( np.linalg.norm(results[0,0]-results[i,0]), np.linalg.norm(results[0,1]-results[i,1])))
-        print("\n") 
+        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-k[i-1])], [0], [10**(-k[i-1])], [0]])
+        theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
+        if gif:
+            animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(k[i-1]))
+        for j in range(0,4):
+            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]    
+
+    #compare the results
+    for i in range(1,len(k)+1):
+        print("k = {}, i.e. ε = 10^-{}".format(k[i-1],k[i-1]))
+        done1 = False
+        done2 = False
+        for j in range(n):
+            theta1margin = abs(results[0,j]*0.01)
+            theta2margin = abs(results[2,j]*0.01)
+            if (abs(abs(results[0,((n+1)*i)+j]) - abs(results[0,j]))) > theta1margin and not done1:
+                done1 = True
+                print("theta 1 is not within 1% of the control at n = {}".format(j))
+
+            if (abs(results[2,((n+1)*i)+j]) - abs(results[2,j])) > theta2margin and not done2:
+                print("theta 2 is not within 1% of the control at n = {}".format(j))
+                done2 = True
+            if done1 and done2:
+                break
+        if not done1:
+            print("theta 1 is always within 1% of the control for n = {} and T = {}".format(n,t))
+        if not done2:
+            print("theta 2 is always within 1% of the control for n = {} and T = {}".format(n,t))
+        print("\n")
+        
     
 def prob12():
     print("\n---- Problem 12")
-    prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    initial = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    T = 40
+    k = [1,2,3,4,5,6,7,8,9,10,11,12]
+    n = 1000
+    print("We begin by studying the error in the Runge-Kutta method for the double pendulum for different values of k. i.e. 10^(-k).")
+    prob11(initial,k,n,T,False)
+
+    print("Now we study the error in the Runge-Kutta method for the double pendulum for different values of n.")
+    print("We will be using k = 12, i.e. 10^(-12).")
+    new_k = [12]
+    for _ in range(0,5):
+        print("n = {}".format(n))
+        prob11(initial,new_k,n,T,False)
+        n = n*2
+    print("We will now study the error in the Runge-Kutta method for the double pendulum for different values of T.")
+    print("We will be using k = 12, i.e. 10^(-12) and n = 16000.")
+    n = 16000
+    for _ in range(0,5):
+        print("T = {}".format(T))
+        prob11(initial,new_k,n,T,False)
+        T = T*2
+    print("We will now study the error in the Runge-Kutta method for the double pendulum for different initial values.")
+    print("We will be using k = 12, i.e. 10^(-12) and n = 8000 and T = 40.")
     T = 40
     n = 1000
-    theta1 = RungeKutta(n, T, prob12InitialVal1, F2)
-    k = [1,2,3,4,5,6,7,8,9,10,11,12]
-    for i in k:
-        prob12InitialVal2Error = prob12InitialVal2 + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
-        theta2 = RungeKutta(n, T, prob12InitialVal2Error, F2)
-        plotTwoPendulums(theta1,theta2, n, T, "problem12_k_{}".format(i))
+    theta1_options = [2*np.pi/3, 2*np.pi/5, 2*np.pi/7, 2*np.pi/13]
+    theta2_options = [np.pi/6, np.pi/10, np.pi/14, np.pi/26]
+    for i in range(len(theta1_options)):
+        for j in range(len(theta2_options)):
+            print("Initial values: θ(0) = {}, θ'(0) = 0, θ(0) = {}, θ'(0) = 0".format(theta1_options[i],theta2_options[j]))
+            initial = np.matrix([[theta1_options[i]], [0], [theta2_options[j]], [0]])
+            prob11(initial=initial,k = new_k,n = n,t = T,gif = False)
 
 def prob13():
     print("\n---- Problem 13")

@@ -532,21 +532,21 @@ def prob13():
         if not done:
             results_for_g[0,i] = n
     
-    #subplots for 4 subplots
-    # fig, axs = plt.subplots(2, 2)
-    # axs[0, 0].plot(options_for_L1, results_for_L1[0,:])
-    # axs[0, 0].set_title('L1')
-    # axs[0, 1].plot(options_for_L2, results_for_L2[0,:])
-    # axs[0, 1].set_title('L2')
-    # axs[1, 0].plot(options_for_m1, results_for_m1[0,:])
-    # axs[1, 0].set_title('m1')
-    # axs[1, 1].plot(options_for_m2, results_for_m2[0,:])
-    # axs[1, 1].set_title('m2')
-    # for ax in axs.flat:
-    #     ax.set(xlabel='value', ylabel='time')
-    # # Hide x labels and tick labels for top plots and y ticks for right plots.
-    # for ax in axs.flat:
-    #     ax.label_outer()
+    # subplots for 4 subplots
+    fig, axs = plt.subplots(2, 2)
+    axs[0, 0].plot(options_for_L1, results_for_L1[0,:])
+    axs[0, 0].set_title('L1')
+    axs[0, 1].plot(options_for_L2, results_for_L2[0,:])
+    axs[0, 1].set_title('L2')
+    axs[1, 0].plot(options_for_m1, results_for_m1[0,:])
+    axs[1, 0].set_title('m1')
+    axs[1, 1].plot(options_for_m2, results_for_m2[0,:])
+    axs[1, 1].set_title('m2')
+    for ax in axs.flat:
+        ax.set(xlabel='value', ylabel='time')
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    for ax in axs.flat:
+        ax.label_outer()
     plt.show()
     plt.plot(options_for_g, results_for_g[0,:])
     plt.title('g')
