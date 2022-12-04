@@ -52,6 +52,23 @@ def F2(theta):
     z4 = z4_numinator / z4_denominator
     return np.matrix([[z1],[z2],[z3],[z4]])
 
+def F3(theta,m1,m2,L1,L2,G):
+    """theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)' """
+    ang1 = theta[0,0]
+    w1 = theta[1,0]
+    ang2 = theta[2,0]
+    w2 = theta[3,0]
+    delta = ang2 - ang1
+    z1 = w1
+    z2_numinator = ( (m2*L1*(w1**2) * np.sin(delta) * np.cos(delta)) + (m2*G*np.sin(ang2)*np.cos(delta)) + (m2*L2*(w2**2)*np.sin(delta)) - ((m1+m2)*G*np.sin(ang1)) )
+    z2_denominator = ( ((m1+m2)*L1) - (m2*L1*(np.cos(delta)**2)) )
+    z2 = z2_numinator / z2_denominator
+    z3 = w2
+    z4_numinator = ( (-m2*L2*(w2**2)*np.sin(delta)*np.cos(delta)) +  ((m1+m2)*((G*np.sin(ang1)*np.cos(delta)) - (L1*(w1**2)*np.sin(delta)) - (G*np.sin(ang2)))) )
+    z4_denominator = ( ((m1+m2)*L1) - (m2*L2*(np.cos(delta)**2)))
+    z4 = z4_numinator / z4_denominator
+    return np.matrix([[z1],[z2],[z3],[z4]])
+
 def euler(n, T, initalValues, F):
     h = T/n
     theta = np.zeros((initalValues.size, n+1))
@@ -69,6 +86,18 @@ def RungeKutta(n, T, initalValues, F):
         k2 = F(theta[:,i:(i+1)] + k1*(h/2))
         k3 = F(theta[:,i:(i+1)] + k2*(h/2))
         k4 = F(theta[:,i:(i+1)] + k3*h)
+        theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + (k1 + 2*k2 + 2*k3 + k4)*(h/6)
+    return theta
+
+def RungeKuttaModified(n, T, initalValues, F,L1,L2,m1,m2,G):
+    h = T/n
+    theta = np.zeros((initalValues.size, n+1))
+    theta[:,0:1] = initalValues
+    for i in range(n):
+        k1 = F(theta[:,i:(i+1)],m1,m2,L1,L2,G)
+        k2 = F(theta[:,i:(i+1)] + k1*(h/2),m1,m2,L1,L2,G)
+        k3 = F(theta[:,i:(i+1)] + k2*(h/2),m1,m2,L1,L2,G)
+        k4 = F(theta[:,i:(i+1)] + k3*h,m1,m2,L1,L2,G)
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + (k1 + 2*k2 + 2*k3 + k4)*(h/6)
     return theta
 
@@ -352,79 +381,194 @@ def prob10():
     print("Not done")
     
     
-def prob11(k = [1,2,3,4,5],n=1000,t=40,gif=True):
+def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4,5],n=1000,t=40,gif=True):
+    h = t/n
     if gif:
         print("\n---- Problem 11")
-    #Problem with T = 40
-    #Need to see the error. i.e. numerical
-    prob11InitialVal1 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
-    prob11InitialVal2 = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    prob11InitialVal1 = initial.copy()
+    prob11InitialVal2 = initial.copy()
     theta1 = RungeKutta(n,t, prob11InitialVal1, F2)
     results = np.zeros((4,(n+1)*(len(k)+1)))
     #add all the values from theta1 to results
     for i in range(0,4):
         results[i,0:(n+1)] = theta1[i,:]
-
-    for i in k:
-        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-i)], [0], [10**(-i)], [0]])
+    print("At T = ",t," the final position of the pendulum is: ",theta1[0,n],",",theta1[2,n])
+    for i in range(1,len(k)+1):
+        prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-k[i-1])], [0], [10**(-k[i-1])], [0]])
         theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
         if gif:
-            animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(i))
+            animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(k[i-1]))
+            print("At T= 40, the value in the {}th pendulum for theta 1 is {} and for theta 2 is {}".format(i,theta2[0,-1],theta2[2,-1]))
         for j in range(0,4):
-            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]    
+            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]
+
     #compare the results
-    for i in k:
-        print("k = {}, i.e. ε = 10^-{}".format(i,i))
+    for i in range(1,len(k)+1):
+        print("k = {}, i.e. ε = 10^-{}".format(k[i-1],k[i-1]))
         done1 = False
         done2 = False
         for j in range(n):
             theta1margin = abs(results[0,j]*0.01)
             theta2margin = abs(results[2,j]*0.01)
-            if (abs(results[0,((n+1)*i)+j]) - abs(results[0,j])) > theta1margin and not done1:
+            if (abs(abs(results[0,((n+1)*i)+j]) - abs(results[0,j]))) > theta1margin and not done1:
                 done1 = True
-                print("theta 1 is not within 1% of the control at n = {}".format(j))
+                print("theta 1 is not within 1% of the control at t = {}".format(h*j))
 
             if (abs(results[2,((n+1)*i)+j]) - abs(results[2,j])) > theta2margin and not done2:
-                print("theta 2 is not within 1% of the control at n = {}".format(j))
+                print("theta 2 is not within 1% of the control at t = {}".format(h*j))
                 done2 = True
-
             if done1 and done2:
                 break
         if not done1:
-            print("theta 1 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            print("theta 1 is always within 1% of the control for t = {}".format(t))
         if not done2:
-            print("theta 2 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            print("theta 2 is always within 1% of the control for t = {}".format(t))
         print("\n")
         
     
 def prob12():
     print("\n---- Problem 12")
-    prob12InitialVal1 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    prob12InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
+    initial = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     T = 40
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
     n = 1000
     print("We begin by studying the error in the Runge-Kutta method for the double pendulum for different values of k. i.e. 10^(-k).")
-    prob11(k,n,T,False)
+    prob11(initial,k,n,T,False)
 
     print("Now we study the error in the Runge-Kutta method for the double pendulum for different values of n.")
-    n_value = 1000
-    for i in range(0,5):
-        print("n = {}".format(n_value))
-        prob11([12],n_value,T,False)
-        n_value = n_value*2
-    #ÉG STOPPAÐI HÉR
+    print("We will be using k = 12, i.e. 10^(-12).")
+    new_k = [12]
+    for _ in range(0,5):
+        print("n = {}".format(n))
+        prob11(initial,new_k,n,T,False)
+        n = n*2
+    print("We will now study the error in the Runge-Kutta method for the double pendulum for different values of T.")
+    print("We will be using k = 12, i.e. 10^(-12) and n = 16000.")
+    n = 16000
+    for _ in range(0,5):
+        print("T = {}".format(T))
+        prob11(initial,new_k,n,T,False)
+        T = T*2
+    print("We will now study the error in the Runge-Kutta method for the double pendulum for different initial values.")
+    print("We will be using k = 12, i.e. 10^(-12) and n = 8000 and T = 40.")
+    T = 40
+    n = 1000
+    theta1_options = [2*np.pi/3, 2*np.pi/5, 2*np.pi/7, 2*np.pi/13]
+    theta2_options = [np.pi/6, np.pi/10, np.pi/14, np.pi/26]
+    for i in range(len(theta1_options)):
+        for j in range(len(theta2_options)):
+            print("Initial values: θ(0) = {}, θ'(0) = 0, θ(0) = {}, θ'(0) = 0".format(theta1_options[i],theta2_options[j]))
+            initial = np.matrix([[theta1_options[i]], [0], [theta2_options[j]], [0]])
+            prob11(initial=initial,k = new_k,n = n,t = T,gif = False)
+    
     
 def prob13():
     print("\n---- Problem 13")
-    print("Not done")
-    #Ideas:
-    # -Add a spring
-    # -add mass to the pendulums
-    # -add friction
-    # -edit the length of the pendulums
-    # -Analyze different initial conditions
-    # -Analyze different values of g, i.e. the moon, mars, etc.
+    initial = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    t = 40
+    n = 10000
+    L1 = 2
+    L2 = 2
+    m1 = 1
+    m2 = 1
+    g = 9.81
+    options_for_L1 = [1,1.5,2,2.5,3]
+    results_for_L1 = np.zeros((1,len(options_for_L1)))
+    normal = RungeKutta(n,t,initial,F2)
+    for i,j in enumerate(options_for_L1):
+        done = False
+        theta1 = RungeKuttaModified(n, t, initial, F3, L1 = j, L2 = L2, m1 = m1, m2 = m2, G = g)
+        for k in range(n):
+            if abs(normal[0,k] - theta1[0,k]) > 0.01:
+                results_for_L1[0,i] = k
+                done = True
+                break
+        if not done:
+            results_for_L1[0,i] = n
+    options_for_L2 = [1,1.5,2,2.5,3]
+    results_for_L2 = np.zeros((1,len(options_for_L2)))
+    for i,j in enumerate(options_for_L2):
+        done = False
+        theta1 = RungeKuttaModified(n, t, initial, F3, L1 = L1, L2 = j, m1 = m1, m2 = m2, G = g)
+        for k in range(n):
+            if abs(normal[0,k] - theta1[0,k]) > 0.01:
+                results_for_L2[0,i] = k
+                done = True
+                break
+        if not done:
+            results_for_L2[0,i] = n
+    options_for_m1 = [1,1.5,2,2.5,3,3.5,4,4.5,5]
+    results_for_m1 = np.zeros((1,len(options_for_m1)))
+    for i,j in enumerate(options_for_m1):
+        done = False
+        theta1 = RungeKuttaModified(n, t, initial, F3, L1 = L1, L2 = L2, m1 = j, m2 = m2, G = g)
+        for k in range(n):
+            if abs(normal[0,k] - theta1[0,k]) > 0.01:
+                results_for_m1[0,i] = k
+                done = True
+                break
+        if not done:
+            results_for_m1[0,i] = n
+    options_for_m2 = [1,1.5,2,2.5,3,3.5,4,4.5,5]
+    results_for_m2 = np.zeros((1,len(options_for_m2)))
+    for i,j in enumerate(options_for_m2):
+        done = False
+        theta1 = RungeKuttaModified(n, t, initial, F3, L1 = L1, L2 = L2, m1 = m1, m2 = j, G = g)
+        for k in range(n):
+            if abs(normal[0,k] - theta1[0,k]) > 0.01:
+                results_for_m2[0,i] = k
+                done = True
+                break
+        if not done:
+            results_for_m2[0,i] = n
+    options_for_g = [9.81,1.62,3.7,8.87,275,24.5]
+    results_for_g = np.zeros((1,len(options_for_g)))
+    for i,j in enumerate(options_for_g):
+        done = False
+        theta1 = RungeKuttaModified(n, t, initial, F3, L1 = L1, L2 = L2, m1 = m1, m2 = m2, G = j)
+        for k in range(n):
+            if abs(normal[0,k] - theta1[0,k]) > 0.01:
+                results_for_g[0,i] = k
+                done = True
+                break
+        if not done:
+            results_for_g[0,i] = n
+    
+    # subplots for 4 subplots
+    fig, axs = plt.subplots(2, 2)
+    axs[0, 0].plot(options_for_L1, results_for_L1[0,:])
+    axs[0, 0].set_title('L1')
+    axs[0, 1].plot(options_for_L2, results_for_L2[0,:])
+    axs[0, 1].set_title('L2')
+    axs[1, 0].plot(options_for_m1, results_for_m1[0,:])
+    axs[1, 0].set_title('m1')
+    axs[1, 1].plot(options_for_m2, results_for_m2[0,:])
+    axs[1, 1].set_title('m2')
+    for ax in axs.flat:
+        ax.set(xlabel='value', ylabel='time')
+    # Hide x labels and tick labels for top plots and y ticks for right plots.
+    for ax in axs.flat:
+        ax.label_outer()
+    plt.show()
+    plt.plot(options_for_g, results_for_g[0,:])
+    plt.title('g')
+    plt.xlabel('value')
+    plt.ylabel('time')
+    plt.show()
+
+    # plt.plot(options_for_L1,results_for_L1[0,:],label = "L1")
+    # plt.plot(options_for_L2,results_for_L2[0,:],label = "L2")
+    # plt.plot(options_for_m1,results_for_m1[0,:],label = "m1")
+    # plt.plot(options_for_m2,results_for_m2[0,:],label = "m2")
+    # plt.plot(options_for_g,results_for_g[0,:],label = "g")
+    # plt.legend()
+    # plt.xlabel("Value of parameter")
+    # plt.ylabel("Time until divergence")
+    # plt.title("Time until divergence for different parameters")
+    # plt.show()
+
+
+
 
 
 if __name__ == "__main__":
@@ -438,8 +582,8 @@ if __name__ == "__main__":
     # prob8()
     # prob9()
     # prob10()
-    # prob11()
-    prob12()
+    prob11()
+    # prob12()
     # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]

@@ -13,7 +13,6 @@ def F1(theta):
     return np.matrix([[z1],[z2]])
 
 def F2(theta):
-    """theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)' """
     m1,m2 = 1, 1
     L1,L2 = 2, 2
     ang1 = theta[0,0]
@@ -100,6 +99,7 @@ def prob5():
 def animateTwoPendulums(theta, n, T, name):
     def animate(i):
         if i != 0:
+            trace1.set_data(x1[0:i], y1[0:i])
             trace.set_data(x2[0:i], y2[0:i])
         line1.set_data([0,x1[i]], [0,y1[i]])
         point1.set_data([x1[i]], [y1[i]])
@@ -119,6 +119,7 @@ def animateTwoPendulums(theta, n, T, name):
     point2, = plt.plot([], [], 'ko', markersize=10)
     line2, = plt.plot([], [], 'g-', linewidth=3)
     trace, = plt.plot([], [], 'k--')
+    trace1, = plt.plot([], [], 'r--')
     
     ax.set_ylim(-4.5, 4.5)
     ax.set_xlim(-4.5, 4.5)
@@ -160,35 +161,49 @@ def animateAllPendulums(theta1, theta2, n, T, name):
 
 def prob7():
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta = euler(200, 8, prob6InitialVal, F2)
-    animateTwoPendulums(theta, 200, 8, "hrafnljoti\prob6.gif")
+    theta = RungeKutta(500, 20, prob6InitialVal, F2)
+    animateTwoPendulums(theta, 500, 20, "marteinnagaeti\prob7.gif")
 
 def prob8():
-    n = 200
-    T = 8
-    prob8InitialVal1 = np.matrix([[np.pi/3], [0]])
-    prob8InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta1 = euler(n, T, prob8InitialVal1, F1)
-    theta2 = euler(n, T, prob8InitialVal2, F2)
-    animateAllPendulums(theta1, theta2, n, T, "hrafnljoti\prob8.gif")
+    n = 500
+    T = 20
+    prob8InitialVal2_1 = np.matrix([[np.pi/3], [0], [-np.pi/3], [0]])
+    prob8InitialVal2_2 = np.matrix([[np.pi/2], [0], [np.pi/3], [0]])
+    prob8InitialVal2_3 = np.matrix([[np.pi/5], [0], [np.pi/2], [0]])
+    prob8InitialVal2_4 = np.matrix([[-np.pi/3], [0], [-np.pi/6], [0]])
+    theta1 = RungeKutta(n, T, prob8InitialVal2_1, F2)
+    theta2 = RungeKutta(n, T, prob8InitialVal2_2, F2)
+    theta3 = RungeKutta(n, T, prob8InitialVal2_3, F2)
+    theta4 = RungeKutta(n, T, prob8InitialVal2_4, F2)
+    animateTwoPendulums(theta1, 500, 20, "marteinnagaeti\prob8_1.gif")
+    animateTwoPendulums(theta2, 500, 20, "marteinnagaeti\prob8_2.gif")
+    animateTwoPendulums(theta3, 500, 20, "marteinnagaeti\prob8_3.gif")
+    animateTwoPendulums(theta4, 500, 20, "marteinnagaeti\prob8_4.gif")
+ 
 
 
 def prob9():
     num_of_InitialVal = 20
     estimate_theta = np.zeros((num_of_InitialVal,4))
+    sign = -1 # to alternate between positive and negative for theta1 and theta2
     for i in range(1, num_of_InitialVal+1):
-        prob9InitialVal = np.matrix([[np.pi*i*0.02], [0], [np.pi*i*0.02], [0]])
+        
+        prob9InitialVal = np.matrix([[-1*sign*np.pi*i*0.02], [0], [sign*np.pi*i*0.02], [0]])
         estimate_theta[i-1] = RungeKutta(12800, 20, prob9InitialVal, F2)[:,12800]
+        sign *= -1
     n = 100
     n_array = np.zeros(7)
     error_array = np.zeros((7,num_of_InitialVal))
     counter = 0
     while n <= 6400:
         temp_error_array = np.zeros(num_of_InitialVal)
+        sign = -1
         for i in range(1, num_of_InitialVal+1):
-            prob9InitialVal = np.matrix([[np.pi*i*0.02], [0], [np.pi*i*0.02], [0]])
+            prob9InitialVal = np.matrix([[-1*sign*np.pi*i*0.02], [0], [sign*np.pi*i*0.02], [0]])
             temp_error_array[i-1] = np.linalg.norm(estimate_theta[i-1] - RungeKutta(n, 20, prob9InitialVal, F2)[:,n])
+            sign *= -1
         # mean_error = np.mean(error_array)
+
         error_array[counter] = temp_error_array
         n_array[counter] = n
         counter += 1
@@ -198,21 +213,23 @@ def prob9():
     slope = np.zeros(num_of_InitialVal)
 
     for i in range(0,num_of_InitialVal):
-        slope[i] = np.polyfit(np.log(n_array), np.log(error_array[:,i]), 1)[0]
-    print(slope)
-    print(np.mean(slope))
-    # plt.plot(np.log10(n_array),np.log10(mean_error_array), 'ro')
-    # plt.plot(np.log10(n_array),np.log10(mean_error_array))
-    # plt.xlabel("log10(n)")
-    # plt.ylabel("log10(mean error)")
-    # plt.title("Problem 9")
-    # plt.grid()
-    # plt.show()
+        slope[i] = np.polyfit(np.log10(n_array), np.log10(error_array[:,i]), 1)[0]
+
+    print("mean: {} standard deviation: {}".format(np.mean(slope), np.std(slope)))
+    a,b = np.polyfit(np.log10(n_array), np.log10(error_array[:,3]), 1)
+    plt.plot(np.log10(n_array),a*np.log10(n_array)+b)
+    plt.plot(np.log10(n_array),np.log10(error_array[:,3]), 'ro')
+    plt.xlabel("log10(n)")
+    plt.ylabel("log10(error)")
+    plt.title("theta1 = 0.06pi, theta2 = -0.06pi")
+    plt.show()
+    
+
 
 def prob9test():
-    prob9InitialVal = np.matrix([[np.pi/2], [0], [np.pi/2], [0]])
-    theta = RungeKutta(200, 20, prob9InitialVal, F2)
-    animateTwoPendulums(theta, 200, 20, "marteinnagaeti\prob9.gif")
+    prob9InitialVal = np.matrix([[np.pi*0.4], [0], [-np.pi*0.4], [0]])
+    theta = RungeKutta(500, 20, prob9InitialVal, F2)
+    animateTwoPendulums(theta, 500, 20, "marteinnagaeti\prob9.gif")
   
 
 
@@ -222,5 +239,5 @@ if __name__ == "__main__":
     # prob4()
     # prob7()
     # prob8()
-    # prob9()
-    prob9test()
+    prob9()
+    # prob9test()
