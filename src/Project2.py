@@ -506,6 +506,7 @@ def prob10():
     
     
 def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4,5],n=1000,t=40,gif=True):
+    h = t/n
     if gif:
         print("\n---- Problem 11")
     prob11InitialVal1 = initial.copy()
@@ -525,6 +526,7 @@ def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4
             results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]    
 
     #compare the results
+    return_val = np.zeros((2,len(k)))
     for i in range(1,len(k)+1):
         print("k = {}, i.e. ε = 10^-{}".format(k[i-1],k[i-1]))
         done1 = False
@@ -535,17 +537,23 @@ def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4
             if (abs(abs(results[0,((n+1)*i)+j]) - abs(results[0,j]))) > theta1margin and not done1:
                 done1 = True
                 print("theta 1 is not within 1% of the control at n = {}".format(j))
+                return_val[0,i-1] = j*h
 
             if (abs(results[2,((n+1)*i)+j]) - abs(results[2,j])) > theta2margin and not done2:
                 print("theta 2 is not within 1% of the control at n = {}".format(j))
                 done2 = True
+                return_val[1,i-1] = j*h
+
             if done1 and done2:
                 break
         if not done1:
             print("theta 1 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            return_val[0,i-1] = n*h
         if not done2:
             print("theta 2 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            return_val[1,i-1] = n*h
         print("\n")
+    return return_val
         
     
 def prob12():
@@ -553,35 +561,98 @@ def prob12():
     initial = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
     T = 40
     k = [1,2,3,4,5,6,7,8,9,10,11,12]
-    n = 1000
+    n = 10000
     print("We begin by studying the error in the Runge-Kutta method for the double pendulum for different values of k. i.e. 10^(-k).")
-    prob11(initial,k,n,T,False)
+    plot_vals = prob11(initial,k,n,T,False)
+    # plot the results
+    plt.plot(k,plot_vals[0,:],label="theta 1")
+    plt.plot(k,plot_vals[1,:],label="theta 2")
+    plt.xlabel("k")
+    plt.ylabel("time of deviation from 1%[s]")
+    plt.title("time of deviation from 1% vs k for the double pendulum")
+    plt.legend()
+    plt.savefig("problem12Differntk.png")
+    plt.show()
 
     print("Now we study the error in the Runge-Kutta method for the double pendulum for different values of n.")
     print("We will be using k = 12, i.e. 10^(-12).")
     new_k = [12]
-    for _ in range(0,5):
+    plot_vals = np.zeros((2,5))
+    for i in range(0,5):
         print("n = {}".format(n))
-        prob11(initial,new_k,n,T,False)
+        val = prob11(initial,new_k,n,T,False)
         n = n*2
+        plot_vals[0,i] = val[0,0]
+        plot_vals[1,i] = val[1,0]
+    #plot the results
+    plt.plot([10000,20000,40000,80000,160000],plot_vals[0,:],label="theta 1")
+    plt.plot([10000,20000,40000,80000,160000],plot_vals[1,:],label="theta 2")
+    plt.xlabel("n")
+    plt.ylabel("time of deviation from 1%[s]")
+    plt.title("time of deviation from 1% vs n for the double pendulum")
+    plt.legend()
+    plt.savefig("problem12Differntn.png")
+    plt.show()
+
     print("We will now study the error in the Runge-Kutta method for the double pendulum for different values of T.")
     print("We will be using k = 12, i.e. 10^(-12) and n = 16000.")
     n = 16000
+    plot_vals = np.zeros((2,5))
     for _ in range(0,5):
         print("T = {}".format(T))
-        prob11(initial,new_k,n,T,False)
+        val = prob11(initial,new_k,n,T,False)
         T = T*2
+        plot_vals[0,_] = val[0,0]
+        plot_vals[1,_] = val[1,0]
+    #plot the results
+    plt.plot([40,80,160,320,640],plot_vals[0,:],label="theta 1")
+    plt.plot([40,80,160,320,640],plot_vals[1,:],label="theta 2")
+    plt.xlabel("T")
+    plt.ylabel("time of deviation from 1%[s]")
+    plt.title("time of deviation from 1% vs T for the double pendulum")
+    plt.legend()
+    plt.savefig("problem12DifferntT.png")
+    plt.show()
+
     print("We will now study the error in the Runge-Kutta method for the double pendulum for different initial values.")
     print("We will be using k = 12, i.e. 10^(-12) and n = 8000 and T = 40.")
     T = 40
     n = 1000
-    theta1_options = [2*np.pi/3, 2*np.pi/5, 2*np.pi/7, 2*np.pi/13]
-    theta2_options = [np.pi/6, np.pi/10, np.pi/14, np.pi/26]
-    for i in range(len(theta1_options)):
-        for j in range(len(theta2_options)):
-            print("Initial values: θ(0) = {}, θ'(0) = 0, θ(0) = {}, θ'(0) = 0".format(theta1_options[i],theta2_options[j]))
-            initial = np.matrix([[theta1_options[i]], [0], [theta2_options[j]], [0]])
-            prob11(initial=initial,k = new_k,n = n,t = T,gif = False)
+    new_k = [12]
+    plot_vals = np.zeros((2,50))
+    #first we start off only changing theta 1 and keeping theta 2 constant
+    for i in range(0,50):
+        print("theta 1 = {}".format(i*np.pi/50))
+        val = prob11(np.matrix([[i*np.pi/50],[0],[np.pi/6],[0]]),new_k,n,T,False)
+        plot_vals[0,i] = val[0,0]
+        plot_vals[1,i] = val[1,0]
+    #plot the results
+    plt.plot([i*np.pi/50 for i in range(0,50)],plot_vals[0,:],label="theta 1")
+    plt.plot([i*np.pi/50 for i in range(0,50)],plot_vals[1,:],label="theta 2")
+    plt.xlabel("theta 1")
+    plt.ylabel("time of deviation from 1%[s]")
+    plt.title("time of deviation from 1% vs theta 1 for the double pendulum")
+    plt.legend()
+    plt.savefig("problem12Differnttheta1.png")
+    plt.show()
+
+    #now we change theta 2 and keep theta 1 constant
+    plot_vals = np.zeros((2,50))
+    for i in range(0,50):
+        print("theta 2 = {}".format(i*np.pi/50))
+        val = prob11(np.matrix([[np.pi/6],[0],[i*np.pi/50],[0]]),new_k,n,T,False)
+        plot_vals[0,i] = val[0,0]
+        plot_vals[1,i] = val[1,0]
+    #plot the results
+    plt.plot([i*np.pi/50 for i in range(0,50)],plot_vals[0,:],label="theta 1")
+    plt.plot([i*np.pi/50 for i in range(0,50)],plot_vals[1,:],label="theta 2")
+    plt.xlabel("theta 2")
+    plt.ylabel("time of deviation from 1%[s]")
+    plt.title("time of deviation from 1% vs theta 2 for the double pendulum")
+    plt.legend()
+    plt.savefig("problem12Differnttheta2.png")
+    plt.show()
+    
 
 def prob13():
     print("\n---- Problem 13")
@@ -604,10 +675,10 @@ if __name__ == "__main__":
     # prob6()
     # prob7()
     # prob8()
-    prob9()
+    # prob9()
     # prob10()
     # prob11()
-    # prob12()
+    prob12()
     # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
