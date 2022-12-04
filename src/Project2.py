@@ -108,6 +108,7 @@ def animateTwoPendulums(theta, n, T, name):
     def animate(i):
         if i != 0:
             trace.set_data(x2[0:i], y2[0:i])
+            trace2.set_data(x1[0:i], y1[0:i])
         line1.set_data([0,x1[i]], [0,y1[i]])
         point1.set_data([x1[i]], [y1[i]])
         line2.set_data([x1[i], x2[i]], [y1[i], y2[i]])
@@ -126,6 +127,7 @@ def animateTwoPendulums(theta, n, T, name):
     point2, = plt.plot([], [], 'ko', markersize=10)
     line2, = plt.plot([], [], 'g-', linewidth=3)
     trace, = plt.plot([], [], 'k--')
+    trace2, = plt.plot([], [], 'r--')
     
     ax.set_ylim(-4.5, 4.5)
     ax.set_xlim(-4.5, 4.5)
@@ -408,28 +410,68 @@ def prob6():
 def prob7():
     print("\n---- Problem 7")
     prob6InitialVal = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta = euler(200, 8, prob6InitialVal, F2)
-    animateTwoPendulums(theta, 200, 8, "problem7")
-    plotTwoPendulums(theta=theta, n=200, T=20, name="problem7", label=["θ(0)=π/3", "θ(0)=π/6"])
+    theta = RungeKutta(500, 20, prob6InitialVal, F2)
+    animateTwoPendulums(theta, 500, 20, "problem7")
 
 def prob8():
     print("\n---- Problem 8")
-    n = 200
-    T = 8
-    prob8InitialVal1 = np.matrix([[np.pi/3], [0]])
-    prob8InitialVal2 = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    theta1 = euler(n, T, prob8InitialVal1, F1)
-    theta2 = euler(n, T, prob8InitialVal2, F2)
-    animateAllPendulums(theta1, theta2, n, T, "problem8")
+    n = 500
+    T = 20
+    prob8InitialVal2_1 = np.matrix([[np.pi/3], [0], [-np.pi/3], [0]])
+    prob8InitialVal2_2 = np.matrix([[np.pi/2], [0], [np.pi/3], [0]])
+    prob8InitialVal2_3 = np.matrix([[np.pi/5], [0], [np.pi/2], [0]])
+    prob8InitialVal2_4 = np.matrix([[-np.pi/3], [0], [-np.pi/6], [0]])
+    theta1 = RungeKutta(n, T, prob8InitialVal2_1, F2)
+    theta2 = RungeKutta(n, T, prob8InitialVal2_2, F2)
+    theta3 = RungeKutta(n, T, prob8InitialVal2_3, F2)
+    theta4 = RungeKutta(n, T, prob8InitialVal2_4, F2)
+    animateTwoPendulums(theta1, 500, 20, "problem8_1")
+    animateTwoPendulums(theta2, 500, 20, "problem8_2")
+    animateTwoPendulums(theta3, 500, 20, "problem8_3")
+    animateTwoPendulums(theta4, 500, 20, "problem8_4")
+ 
 
 def prob9():
     print("\n---- Problem 9")
-    initial_values = np.matrix([[np.pi/3], [0], [np.pi/6], [0]])
-    n_values = [100, 200, 400, 800, 1600, 3200, 6400]
-    T = 20
-    for initial_val in initial_values:
-        for n in n_values:
-            pos1, pos2 = penduliFinalPosition(initial_val, n, T)
+    num_of_InitialVal = 20
+    estimate_theta = np.zeros((num_of_InitialVal,4))
+    sign = -1 # to alternate between positive and negative for theta1 and theta2
+    for i in range(1, num_of_InitialVal+1):
+        
+        prob9InitialVal = np.matrix([[-1*sign*np.pi*i*0.02], [0], [sign*np.pi*i*0.02], [0]])
+        estimate_theta[i-1] = RungeKutta(12800, 20, prob9InitialVal, F2)[:,12800]
+        sign *= -1
+    n = 100
+    n_array = np.zeros(7)
+    error_array = np.zeros((7,num_of_InitialVal))
+    counter = 0
+    while n <= 6400:
+        temp_error_array = np.zeros(num_of_InitialVal)
+        sign = -1
+        for i in range(1, num_of_InitialVal+1):
+            prob9InitialVal = np.matrix([[-1*sign*np.pi*i*0.02], [0], [sign*np.pi*i*0.02], [0]])
+            temp_error_array[i-1] = np.linalg.norm(estimate_theta[i-1] - RungeKutta(n, 20, prob9InitialVal, F2)[:,n])
+            sign *= -1
+        # mean_error = np.mean(error_array)
+
+        error_array[counter] = temp_error_array
+        n_array[counter] = n
+        counter += 1
+        print(n)
+        n = n*2
+
+    slope = np.zeros(num_of_InitialVal)
+
+    for i in range(0,num_of_InitialVal):
+        slope[i] = np.polyfit(np.log10(n_array), np.log10(error_array[:,i]), 1)[0]
+
+    print("mean: {} standard deviation: {}".format(np.mean(slope), np.std(slope)))
+    plt.plot(np.log10(n_array),np.log10(error_array[:,3]))
+    plt.plot(np.log10(n_array),np.log10(error_array[:,3]), 'ro')
+    plt.xlabel("log10(n)")
+    plt.ylabel("log10(error)")
+    plt.title("theta1 = 0.06pi, theta2 = -0.06pi")
+    plt.show()
 
 def prob10():
     n = 400
@@ -561,9 +603,9 @@ if __name__ == "__main__":
     # prob6()
     # prob7()
     # prob8()
-    # prob9()
+    prob9()
     # prob10()
-    prob11()
+    # prob11()
     # prob12()
     # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
