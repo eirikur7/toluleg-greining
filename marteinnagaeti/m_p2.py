@@ -216,7 +216,8 @@ def prob9():
         slope[i] = np.polyfit(np.log10(n_array), np.log10(error_array[:,i]), 1)[0]
 
     print("mean: {} standard deviation: {}".format(np.mean(slope), np.std(slope)))
-    plt.plot(np.log10(n_array),np.log10(error_array[:,3]))
+    a,b = np.polyfit(np.log10(n_array), np.log10(error_array[:,3]), 1)
+    plt.plot(np.log10(n_array),a*np.log10(n_array)+b)
     plt.plot(np.log10(n_array),np.log10(error_array[:,3]), 'ro')
     plt.xlabel("log10(n)")
     plt.ylabel("log10(error)")
@@ -238,5 +239,5 @@ if __name__ == "__main__":
     # prob4()
     # prob7()
     # prob8()
-    # prob9()
-    prob9test()
+    prob9()
+    # prob9test()
