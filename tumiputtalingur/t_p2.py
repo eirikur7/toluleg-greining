@@ -382,6 +382,7 @@ def prob10():
     
     
 def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4,5],n=1000,t=40,gif=True):
+    h = t/n
     if gif:
         print("\n---- Problem 11")
     prob11InitialVal1 = initial.copy()
@@ -391,14 +392,15 @@ def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4
     #add all the values from theta1 to results
     for i in range(0,4):
         results[i,0:(n+1)] = theta1[i,:]
-
+    print("At T = ",t," the final position of the pendulum is: ",theta1[0,n],",",theta1[2,n])
     for i in range(1,len(k)+1):
         prob11InitialVal2Error = prob11InitialVal2.copy() + np.matrix([[10**(-k[i-1])], [0], [10**(-k[i-1])], [0]])
         theta2 = RungeKutta(n, t, prob11InitialVal2Error, F2)
         if gif:
             animateTwoDoublePendulums(theta1,theta2, n, t, "problem11_k_{}".format(k[i-1]))
+            print("At T= 40, the value in the {}th pendulum for theta 1 is {} and for theta 2 is {}".format(i,theta2[0,-1],theta2[2,-1]))
         for j in range(0,4):
-            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]    
+            results[j,(n+1)*i:(n+1)*(i+1)] = theta2[j,:]
 
     #compare the results
     for i in range(1,len(k)+1):
@@ -410,17 +412,17 @@ def prob11(initial =  np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]]),k = [1,2,3,4
             theta2margin = abs(results[2,j]*0.01)
             if (abs(abs(results[0,((n+1)*i)+j]) - abs(results[0,j]))) > theta1margin and not done1:
                 done1 = True
-                print("theta 1 is not within 1% of the control at n = {}".format(j))
+                print("theta 1 is not within 1% of the control at t = {}".format(h*j))
 
             if (abs(results[2,((n+1)*i)+j]) - abs(results[2,j])) > theta2margin and not done2:
-                print("theta 2 is not within 1% of the control at n = {}".format(j))
+                print("theta 2 is not within 1% of the control at t = {}".format(h*j))
                 done2 = True
             if done1 and done2:
                 break
         if not done1:
-            print("theta 1 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            print("theta 1 is always within 1% of the control for t = {}".format(t))
         if not done2:
-            print("theta 2 is always within 1% of the control for n = {} and T = {}".format(n,t))
+            print("theta 2 is always within 1% of the control for t = {}".format(t))
         print("\n")
         
     
@@ -580,9 +582,9 @@ if __name__ == "__main__":
     # prob8()
     # prob9()
     # prob10()
-    # prob11()
+    prob11()
     # prob12()
-    prob13()
+    # prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
     # question = getInput(question_string, question_available)
