@@ -220,7 +220,7 @@ def prob9():
     plt.plot(np.log10(n_array),np.log10(error_array[:,3]), 'ro')
     plt.xlabel("log10(n)")
     plt.ylabel("log10(error)")
-    plt.title("theta1 = -0.4pi, theta2 = 0.4pi")
+    plt.title("theta1 = 0.06pi, theta2 = -0.06pi")
     plt.show()
     
 
