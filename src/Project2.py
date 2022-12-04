@@ -78,6 +78,22 @@ def penduliFinalPosition(initial_value, n, T):
     theta = euler(n, T, initial_value, F2)
     return theta[0,-1], theta[2,-1]
 
+def F3(theta,m1,m2,L1,L2,G):
+    """theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)' """
+    ang1 = theta[0,0]
+    w1 = theta[1,0]
+    ang2 = theta[2,0]
+    w2 = theta[3,0]
+    delta = ang2 - ang1
+    z1 = w1
+    z2_numinator = ( (m2*L1*(w1**2) * np.sin(delta) * np.cos(delta)) + (m2*G*np.sin(ang2)*np.cos(delta)) + (m2*L2*(w2**2)*np.sin(delta)) - ((m1+m2)*G*np.sin(ang1)) )
+    z2_denominator = ( ((m1+m2)*L1) - (m2*L1*(np.cos(delta)**2)) )
+    z2 = z2_numinator / z2_denominator
+    z3 = w2
+    z4_numinator = ( (-m2*L2*(w2**2)*np.sin(delta)*np.cos(delta)) +  ((m1+m2)*((G*np.sin(ang1)*np.cos(delta)) - (L1*(w1**2)*np.sin(delta)) - (G*np.sin(ang2)))) )
+    z4_denominator = ( ((m1+m2)*L1) - (m2*L2*(np.cos(delta)**2)))
+    z4 = z4_numinator / z4_denominator
+    return np.matrix([[z1],[z2],[z3],[z4]])
 #/-------------------------Animation and Plots-------------------------/
 def animateOnePendulum(theta, n, T, name):
     print(ANIMATION_TEXT)
