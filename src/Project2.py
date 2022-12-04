@@ -78,6 +78,22 @@ def penduliFinalPosition(initial_value, n, T):
     theta = euler(n, T, initial_value, F2)
     return theta[0,-1], theta[2,-1]
 
+def F3(theta,m1,m2,L1,L2,G):
+    """theta[0]=theta_1,theta[1]=(theta_1)',theta[2]=theta_2,theta[3]=(theta_2)' """
+    ang1 = theta[0,0]
+    w1 = theta[1,0]
+    ang2 = theta[2,0]
+    w2 = theta[3,0]
+    delta = ang2 - ang1
+    z1 = w1
+    z2_numinator = ( (m2*L1*(w1**2) * np.sin(delta) * np.cos(delta)) + (m2*G*np.sin(ang2)*np.cos(delta)) + (m2*L2*(w2**2)*np.sin(delta)) - ((m1+m2)*G*np.sin(ang1)) )
+    z2_denominator = ( ((m1+m2)*L1) - (m2*L1*(np.cos(delta)**2)) )
+    z2 = z2_numinator / z2_denominator
+    z3 = w2
+    z4_numinator = ( (-m2*L2*(w2**2)*np.sin(delta)*np.cos(delta)) +  ((m1+m2)*((G*np.sin(ang1)*np.cos(delta)) - (L1*(w1**2)*np.sin(delta)) - (G*np.sin(ang2)))) )
+    z4_denominator = ( ((m1+m2)*L1) - (m2*L2*(np.cos(delta)**2)))
+    z4 = z4_numinator / z4_denominator
+    return np.matrix([[z1],[z2],[z3],[z4]])
 #/-------------------------Animation and Plots-------------------------/
 def animateOnePendulum(theta, n, T, name):
     print(ANIMATION_TEXT)
@@ -333,6 +349,78 @@ def animateParametrizedCurve(theta, n, T,time, name):
     ax[1, 1].set_ylim(-(np.pi + 0.5), (np.pi + 0.5))
     ax[1, 1].set_xlim(-(np.pi + 0.5), (np.pi + 0.5))
     ax[1, 1].grid()
+    ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
+    ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
+    printFigText(name)
+
+def RungeKuttaModified(n, T, initalValues, F,L1,L2,m1,m2,G):
+    h = T/n
+    theta = np.zeros((initalValues.size, n+1))
+    theta[:,0:1] = initalValues
+    for i in range(n):
+        k1 = F(theta[:,i:(i+1)],m1,m2,L1,L2,G)
+        k2 = F(theta[:,i:(i+1)] + k1*(h/2),m1,m2,L1,L2,G)
+        k3 = F(theta[:,i:(i+1)] + k2*(h/2),m1,m2,L1,L2,G)
+        k4 = F(theta[:,i:(i+1)] + k3*h,m1,m2,L1,L2,G)
+        theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + (k1 + 2*k2 + 2*k3 + k4)*(h/6)
+    return theta
+
+def prob13Helper(initial, initialError, n, T, constantsArray, constantIndex, options):
+    '''constantArr = [L1, L2, m1, m2, g]'''
+    h = T/n
+    # options_for_L1 = [1,1.5,2,2.5,3]
+    results = np.zeros((1,len(options)))
+    for i,j in enumerate(options):
+        constantsArray[constantIndex] = j
+        done = False
+        normal = RungeKuttaModified(n, T, initial, F3, L1 = constantsArray[0], L2 = constantsArray[1], m1 = constantsArray[2], m2 = constantsArray[3], G = constantsArray[4])
+        theta1 = RungeKuttaModified(n, T, initialError, F3, L1 = constantsArray[0], L2 = constantsArray[1], m1 = constantsArray[2], m2 = constantsArray[3], G = constantsArray[4])
+        for k in range(n):
+            if (abs(normal[0,k] - theta1[0,k]) > 0.01) or (abs(normal[0,k] - theta1[0,k]) > 0.01):
+                results[0,i] = h*k#k
+                done = True
+                break
+        if not done:
+            results[0,i] = h*n#n
+
+    return results
+
+def animateBestProb13(theta1, theta2, n, T, name, L1, L2):
+    print(ANIMATION_TEXT)
+    def animate(i):
+        time_text.set_text(time_template % (i*T/n))
+        line1_1.set_data([0, x1_1[i]], [0, y1_1[i]])
+        line2_1.set_data([x1_1[i], x2_1[i]], [y1_1[i], y2_1[i]])
+
+        line1_2.set_data([0,x1_2[i]], [0,y1_2[i]])
+        line2_2.set_data([x1_2[i], x2_2[i]], [y1_2[i], y2_2[i]])
+        if i != 0:
+            trace1.set_data(x2_1[0:i], y2_1[0:i])
+            trace2.set_data(x2_2[0:i], y2_2[0:i])
+    h = T/n
+    x1_1 = np.cos(theta1[0]-(np.pi/2)) * L1
+    y1_1 = np.sin(theta1[0]-(np.pi/2)) * L1
+    y2_1 = (np.sin(theta1[2]-(np.pi/2)) * L2) + y1_1
+    x2_1 = (np.cos(theta1[2]-(np.pi/2)) * L2) + x1_1
+
+    x1_2 = np.cos(theta2[0]-(np.pi/2)) * L1
+    y1_2 = np.sin(theta2[0]-(np.pi/2)) * L1
+    x2_2 = (np.cos(theta2[2]-(np.pi/2)) * L2) + x1_2
+    y2_2 = (np.sin(theta2[2]-(np.pi/2)) * L2) + y1_2
+
+    fig,ax = plt.subplots(1,1)
+    ax.grid()
+    line1_1, = plt.plot([], [], 'k-', linewidth=3)
+    line2_1, = plt.plot([], [], 'r-', linewidth=3)
+    line1_2, = plt.plot([], [], 'b-', linewidth=3)
+    line2_2, = plt.plot([], [], 'g-', linewidth=3)
+    trace1, = plt.plot([], [], 'r--')
+    trace2, = plt.plot([], [], 'g--')
+    time_template = 'time = %.1fs'
+    time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
+
+    ax.set_ylim(-(L1 + L2 + 0.5), (L1 + L2 + 0.5))
+    ax.set_xlim(-(L1 + L2 + 0.5), (L1 + L2 + 0.5))
     ani = animation.FuncAnimation(fig, animate, frames=n, interval=T)
     ani.save(ANIMATION_PATH.format(name), writer='pillow', fps=n/T)
     printFigText(name)
@@ -654,16 +742,86 @@ def prob12():
     plt.show()
     
 
+
+
 def prob13():
     print("\n---- Problem 13")
-    print("Not done")
-    #Ideas:
-    # -Add a spring
-    # -add mass to the pendulums
-    # -add friction
-    # -edit the length of the pendulums
-    # -Analyze different initial conditions
-    # -Analyze different values of g, i.e. the moon, mars, etc.
+    error = 10**(-3)
+    initial = np.matrix([[2*np.pi/3], [0], [np.pi/6], [0]])
+    initialError = np.matrix([[2*np.pi/3 + error], [0], [np.pi/6 + error], [0]])
+    t = 40
+    n = 10000
+    L1 = 2
+    L2 = 2
+    m1 = 3
+    m2 = 1
+    g = 9.81
+    constantArray = [L1, L2, m1, m2, g]
+    # subplots for 4 subplots
+    options_for_L1 = [1,1.5,2,2.5,3]
+    results_for_L1 = prob13Helper(initial, initialError, n, t, constantArray, 0, options_for_L1)
+    options_for_L2 = [1,1.5,2,2.5,3]
+    results_for_L2 = prob13Helper(initial, initialError, n, t, constantArray, 1, options_for_L2)
+    options_for_m1 = [1,1.5,2,2.5,3,3.5,4,4.5,5]
+    results_for_m1 = prob13Helper(initial, initialError, n, t, constantArray, 2, options_for_m1)
+    options_for_m2 = [1,1.5,2,2.5,3,3.5,4,4.5,5]
+    results_for_m2 = prob13Helper(initial, initialError, n, t, constantArray, 3, options_for_m2)
+    options_for_g = [9.81,1.62,3.7,8.87,275,24.5]
+    results_for_g = prob13Helper(initial, initialError, n, t, constantArray, 4, options_for_g)
+    bestL1Index = np.argmax(results_for_L1)
+    bestL2Index = np.argmax(results_for_L2)
+    bestM1Index = np.argmax(results_for_m1)
+    bestM2Index = np.argmax(results_for_m2)
+    bestGIndex = np.argmax(results_for_g)
+    maxArr = np.array([np.max(results_for_L1), np.max(results_for_L2), 0, np.max(results_for_m2)])
+    maxArr2 = np.array([np.max(results_for_L1), np.max(results_for_L2), np.max(results_for_m1), np.max(results_for_m2), np.max(results_for_g)])
+    bestbest = np.argmax(maxArr)
+    #[L1, L2, m1, m2, g]
+    constantArrayBest = [options_for_L1[bestL1Index], options_for_L2[bestL2Index], options_for_m1[bestM1Index], options_for_m2[bestM2Index], options_for_g[bestGIndex]] 
+    # print("Best: L1={}, L2={}, m1={}, m2={}, g={}".format(bestL1Index, bestL2Index, bestM1Index, bestM2Index, bestGIndex))
+    print("Best: L1={}, L2={}, m1={}, m2={}, g={}, bestIndex={}, allBest={}".format(constantArrayBest[0], constantArrayBest[1], constantArrayBest[2], constantArrayBest[3], constantArrayBest[4],bestbest , maxArr2))
+    
+    t2 = 80
+    n2 = 2000
+    theta1_1 = RungeKuttaModified(n2, t2, initial, F3, L1 = constantArrayBest[0], L2 = constantArrayBest[1], m1 = constantArrayBest[2], m2 = constantArrayBest[3], G = g)
+    theta2_1 = RungeKuttaModified(n2, t2, initialError, F3, L1 = constantArrayBest[0], L2 = constantArrayBest[1], m1 = constantArrayBest[2], m2 = constantArrayBest[3], G = g)
+    animateBestProb13(theta1_1,theta2_1, n2, t2, "problem13_2a", constantArrayBest[0], constantArrayBest[1])
+
+    constantArrayBest2 = constantArray
+    constantArrayBest2[bestbest] = constantArrayBest[bestbest]
+    theta1_2 = RungeKuttaModified(n2, t2, initial, F3, L1 = constantArrayBest2[0], L2 = constantArrayBest2[1], m1 = constantArrayBest2[2], m2 = constantArrayBest2[3], G = g)
+    theta2_2 = RungeKuttaModified(n2, t2, initialError, F3, L1 = constantArrayBest2[0], L2 = constantArrayBest2[1], m1 = constantArrayBest2[2], m2 = constantArrayBest2[3], G = g)
+    animateBestProb13(theta1_2,theta2_2, n2, t2, "problem13_2b", constantArrayBest2[0], constantArrayBest2[1])
+
+    fig1, axs1 = plt.subplots(2, 1)
+    axs1[0].plot(options_for_L1, results_for_L1[0,:])
+    axs1[0].set_ylabel("Time[s]")
+    axs1[0].set_xlabel("L1 Length[m]")
+    axs1[0].set_title("L1")
+    axs1[1].plot(options_for_L2, results_for_L2[0,:])
+    axs1[1].set_title("L2")
+    axs1[1].set_ylabel("Time[s]")
+    axs1[1].set_xlabel("L2 Length[m]")
+
+    fig2, axs2 = plt.subplots(3, 1)
+    axs2[0].plot(options_for_m1, results_for_m1[0,:])
+    axs2[0].set_ylabel("Time[s]")
+    axs2[0].set_xlabel("m1[kg]")
+    axs2[0].set_title("M1")
+    axs2[1].plot(options_for_m2, results_for_m2[0,:])
+    axs2[1].set_ylabel("Time[s]")
+    axs2[1].set_xlabel("m2[kg]")
+    axs2[1].set_title("M2")
+    axs2[2].plot(options_for_g, results_for_g[0,:])
+    axs2[2].set_ylabel("Time[s]")
+    axs2[2].set_xlabel("g[m/s^2]")
+    axs2[2].set_title("Gravity")
+    # plt.tight_layout()
+    fig1.tight_layout()
+    fig2.tight_layout()
+    fig1.show()
+    fig2.show()
+    plt.show()
 
 
 if __name__ == "__main__":
