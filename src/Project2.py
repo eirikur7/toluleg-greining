@@ -58,7 +58,6 @@ def euler(n, T, initalValues, F):
     theta[:,0:1] = initalValues
     for i in range(n):
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + F(theta[:,i:(i+1)])*h
-        print(theta)
     return theta
 
 def RungeKutta(n, T, initalValues, F):
@@ -254,7 +253,6 @@ def plotTwoPendulums(theta, n, T, verbose=True, name=None, fig=None, ax=None, la
     if label:
         ax.plot(x, y1, label=label[0])
         ax.plot(x, y2, label=label[1])
-    ax.legend(loc="upper right")
     ax.set_xlabel("Time")
     ax.set_ylabel("Angle")
 
@@ -560,6 +558,7 @@ def prob9():
     plt.xlabel("log10(n)")
     plt.ylabel("log10(error)")
     plt.title("theta1 = 0.06pi, theta2 = -0.06pi")
+    plt.grid()
     plt.show()
 
 def prob10():
@@ -754,51 +753,39 @@ def prob13():
 
 
 if __name__ == "__main__":
-    # prob1()
-    # prob2()
-    # prob3()
-    # prob4()
-    # prob5()
-    # prob6()
-    # prob7()
-    # prob8()
-    prob9()
-    # prob10()
-    # prob11()
-    # prob12()
-    # prob13()
-    # question_string = "Which question would you like to run (1-13, q to quit): "
-    # question_available = [str(i) for i in range(1,13)] + ["q"]
-    # question = getInput(question_string, question_available)
-    # while True:
-    #     if question == "q":
-    #         break
-    #     elif question == "1":
-    #         prob1()
-    #     elif question == "2":
-    #         prob2()
-    #     elif question == "3":
-    #         prob3()
-    #     elif question == "4":
-    #         prob4()
-    #     elif question == "5":
-    #         prob5()
-    #     elif question == "6":
-    #         prob6()
-    #     elif question == "7":
-    #         prob7()
-    #     elif question == "8":
-    #         prob8()
-    #     elif question == "9":
-    #         prob9()
-    #     elif question == "10":
-    #         prob10()
-    #     elif question == "11":
-    #         prob11()
-    #     elif question == "12":
-    #         prob12()
-    #     elif question == "13":
-    #         prob13()
-    #     else:
-    #         print("Invalid input")
-    #     question = getInput(question_string, question_available)
+
+    question_string = "Which question would you like to run (1-13, q to quit): "
+    question_available = [str(i) for i in range(1,13)] + ["q"]
+    question = getInput(question_string, question_available)
+    while True:
+        if question == "q":
+            break
+        elif question == "1":
+            prob1()
+        elif question == "2":
+            prob2()
+        elif question == "3":
+            prob3()
+        elif question == "4":
+            prob4()
+        elif question == "5":
+            prob5()
+        elif question == "6":
+            prob6()
+        elif question == "7":
+            prob7()
+        elif question == "8":
+            prob8()
+        elif question == "9":
+            prob9()
+        elif question == "10":
+            prob10()
+        elif question == "11":
+            prob11()
+        elif question == "12":
+            prob12()
+        elif question == "13":
+            prob13()
+        else:
+            print("Invalid input")
+        question = getInput(question_string, question_available)
