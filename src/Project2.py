@@ -58,7 +58,7 @@ def euler(n, T, initalValues, F):
     theta[:,0:1] = initalValues
     for i in range(n):
         theta[:,(i+1):(i+2)] = theta[:,i:(i+1)] + F(theta[:,i:(i+1)])*h
-        print(theta)
+        # print(theta)
     return theta
 
 def RungeKutta(n, T, initalValues, F):
@@ -217,8 +217,8 @@ def plotOnePendulum(theta, n, T, verbose=True, name=None, fig=None, ax=None, lab
     ax.grid(visible=True)
     ax.plot(x, y, label=label)
     ax.legend(loc="upper right")
-    ax.set_xlabel("Time")
-    ax.set_ylabel("Angle")
+    ax.set_xlabel("Time [sec]")
+    ax.set_ylabel("Angle [θ]")
 
     if name != None:
         fig.savefig(PLOT_PATH.format(name))
@@ -239,8 +239,8 @@ def plotTwoPendulums(theta, n, T, verbose=True, name=None, fig=None, ax=None, la
         ax.plot(x, y1, label=label[0])
         ax.plot(x, y2, label=label[1])
     ax.legend(loc="upper right")
-    ax.set_xlabel("Time")
-    ax.set_ylabel("Angle")
+    ax.set_xlabel("Time [sec]")
+    ax.set_ylabel("Angle [θ]")
 
     if name != None:
         fig.savefig(PLOT_PATH.format(name))
@@ -596,19 +596,19 @@ def prob13():
 
 
 if __name__ == "__main__":
-    # prob1()
-    # prob2()
-    # prob3()
-    # prob4()
-    # prob5()
-    # prob6()
-    # prob7()
-    # prob8()
+    prob1()
+    prob2()
+    prob3()
+    prob4()
+    prob5()
+    prob6()
+    prob7()
+    prob8()
     prob9()
-    # prob10()
-    # prob11()
-    # prob12()
-    # prob13()
+    prob10()
+    prob11()
+    prob12()
+    prob13()
     # question_string = "Which question would you like to run (1-13, q to quit): "
     # question_available = [str(i) for i in range(1,13)] + ["q"]
     # question = getInput(question_string, question_available)
