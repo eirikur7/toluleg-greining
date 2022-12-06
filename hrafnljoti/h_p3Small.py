@@ -46,7 +46,7 @@ def prob2(n, boundry):
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(x, y, 'b-', linewidth=2, label="Calculated")
-    ax.plot(x, y2, 'r--', label="Actual Solution")
+    ax.plot(x, y2, 'r--', linewidth=3, label="Actual Solution")
     ax.legend()
     ax.set_ylabel("y")
     ax.set_label("x")
@@ -68,7 +68,8 @@ def prob3(n, boundry):
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(x, y, 'b-', linewidth=2, label="Calculated")
-    ax.plot(x, y2, 'r--', label="Actual Solution")
+    ax.plot(x, y2, 'r--', linewidth=3, label="Actual Solution")
+
     ax.legend()
     ax.set_ylabel("y")
     ax.set_label("x")
@@ -89,7 +90,7 @@ def prob4(n, boundry):
 
     fig, ax = plt.subplots(1, 1)
     ax.plot(x, y, 'b-', linewidth=2, label="Calculated")
-    ax.plot(x, y2, 'r--', label="Actual Solution")
+    ax.plot(x, y2, 'r--', linewidth=3, label="Actual Solution")
     ax.legend()
     ax.set_ylabel("y")
     ax.set_label("x")
@@ -98,8 +99,8 @@ def prob4(n, boundry):
 
 
 if __name__ == "__main__":
-    # prob2(100, [0,1])
-    # prob3(100, [0,1])
+    prob2(100, [0,1])
+    prob3(100, [0,1])
     prob4(100, [0,1])
 
 
