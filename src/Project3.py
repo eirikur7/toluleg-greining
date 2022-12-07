@@ -245,12 +245,12 @@ def prob4():
         exec_time = deviations[key]['time']
         if exec_time < 0.3 and m > 20:
             sc = ax.scatter3D(m, n, dev, c=exec_time, vmin=0, vmax=0.5, cmap='coolwarm')
-            if m == 80 and n == 40:
+            # if m == 80 and n == 40:
+            #     ax.scatter3D(m, n, dev, c='green', marker='o', s=100)
+            if m == 90 and n == 30:
                 ax.scatter3D(m, n, dev, c='green', marker='o', s=100)
-            elif m == 90 and n == 30:
-                ax.scatter3D(m, n, dev, c='green', marker='o', s=100)
-            elif m == 90 and n == 40:
-                ax.scatter3D(m, n, dev, c='red', marker='x', s=100)
+            # elif m == 80 and n == 40:
+            #     ax.scatter3D(m, n, dev, c='red', marker='x', s=100)
     plt.colorbar(sc, label='time[s]')
     ax.set_xlabel(xlabel='M')
     ax.set_ylabel(ylabel='N')
