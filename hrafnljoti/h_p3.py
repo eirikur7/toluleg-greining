@@ -10,15 +10,15 @@ def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
     for j in range(n):
         for i in range(m):
             eqNr = i + j*m
-            if((j==0) and (i != 0) and (i != (m-1))):     #Top
-                A[eqNr, eqNr]       = ((2*hy*H)/K) + 3
-                A[eqNr, eqNr + m]   = -4
-                A[eqNr, eqNr + 2*m] = 1
+            if((j==(n-1)) and (i != 0) and (i != (m-1))):     #Top
+                A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
+                A[eqNr, eqNr - m]   = 4
+                A[eqNr, eqNr - 2*m] = -1
                 testDic["Top"] = (i, j)
-            elif(( j==(n-1) ) and (i != 0) and (i != (m-1))):  #Bottom
-                A[eqNr, eqNr]       = ((2*hy*H)/K) + 3
-                A[eqNr, eqNr - m]   = -4
-                A[eqNr, eqNr - 2*m] = 1
+            elif(( j==0 ) and (i != 0) and (i != (m-1))):  #Bottom
+                A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
+                A[eqNr, eqNr + m]   = 4
+                A[eqNr, eqNr + 2*m] = -1
                 testDic["Bottom"] = (i, j)
             elif(( i==(m-1) )):                                 #Right
                 A[eqNr, eqNr] = ((-2*hx*H)/K) + 3
