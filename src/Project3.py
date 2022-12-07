@@ -2,6 +2,9 @@ import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+#import a time taking function
+from timeit import default_timer as timer
+
 # ---------------------------- Helper Functions ---------------------------- #
 def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*n))
@@ -15,36 +18,30 @@ def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr - m]   = 4
                 A[eqNr, eqNr - 2*m] = -1
-                testDic["Top"] = (i, j)
             elif(( j==0 ) and (i != 0) and (i != (m-1))):  #Bottom
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr + m]   = 4
                 A[eqNr, eqNr + 2*m] = -1
-                testDic["Bottom"] = (i, j)
             elif(( i==(m-1) )):                                 #Right
                 A[eqNr, eqNr] = ((-2*hx*H)/K) + 3
                 A[eqNr, eqNr - 1] = -4
                 A[eqNr, eqNr - 2] = 1
-                testDic["Right"] = (i, j)
             elif((i==0) and ( (Lx-L - (hx*i))>0 )):             #Left
                 A[eqNr, eqNr] = ((2*hx*H)/K) - 3
                 A[eqNr, eqNr + 1] = 4
                 A[eqNr, eqNr + 2] = -1
-                testDic["Left"] = (i, j)
             elif(i==0):                                         #Power
                 A[eqNr, eqNr] = 3
                 A[eqNr, eqNr + 1] = -4
                 A[eqNr, eqNr + 2] = 1
-                testDic["Power"] = (i, j)
             else:                                               #Base Plate
                 A[eqNr, eqNr] = -2*((H/(K*delta)) + (1/(hx**2)) + (1/(hy**2)))#-(2*(hy**2)) - (2*(hx**2)) - ( ((hx**2)*(hy**2)*2*H)/(K*delta) )
                 A[eqNr, eqNr-1] = 1/(hx**2)
                 A[eqNr, eqNr+1] = 1/(hx**2)
                 A[eqNr, eqNr+m] = 1/(hy**2)
                 A[eqNr, eqNr-m] = 1/(hy**2)
-                testDic["Plate"] = (i, j)
-    # print(A)
-    return A, testDic
+    return A
+
 
 
 
@@ -119,6 +116,7 @@ def prob2():
     print('--- Problem 2 ---')
     print("calculations can be found in the report")
 
+
 def prob3():
     Lx = 2
     Ly = 2
@@ -129,48 +127,46 @@ def prob3():
     H = 0.005
     m = 10
     n = 10
-    A,tDic = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, L, Lx, P, delta, K)
+    print(A.shape)
+    print(B.shape)
+    V = LA.solve(A, B) + 20
+    print(V[0])
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    x = np.linspace(0, Lx, m)
+    y = np.linspace(0, Ly, n)
+    X1, Y1 = np.meshgrid(x, y)
+    ax.plot_surface(X1, Y1, V.reshape((n,m)), cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel(xlabel='x[cm]')
+    ax.set_ylabel(ylabel='y[cm]')
+    ax.set_zlabel(zlabel='temperature[°C]')
+    plt.show()
 
 
-    # for j in range(n):
-    #         for i in range(m):
-    #             eq = i + j*m
-    #             eq2 = eq + m*(m-j-1)
-    #             for ii in range(m*n):
-    #                 if A[eq2,ii] >= 0:
-    #                     print(" ", end="")
-    #                 print(f"{A[eq2,ii]:.0f}", end=" ")
-    #             print()
-    # for key in tDic:
-    #     x,y = tDic[key]
-    #     eqNr = x + m*y
-    #     print("-------------------------{}-------------------".format(key))
-    #     print("x={},y={}".format(x,y))
-    #     for j in range(n):
-    #         for i in range(m):
-    #             print(A[eqNr, i + j*m],end="| ")
-    #         print()
-    #     print('----------------------------------------------')
-
-
-    # print(A.shape)
-    # print(B)
-    # for j in range(m*n):
-    #     tempStr = ""
-    #     for i in range(m*n):
-    #         tempStr += str(A[j, i]) + " "
-    #     print("{}. {}".format(j, tempStr))
-    #     print()
-
-
-    V = LA.solve(A, B)
-    # print(V)
-    print(V[0]+20)
 
 def prob4():
     print('--- Problem 4 ---')
-    print('Not implemented')
+    Lx = 2
+    Ly = 2
+    delta = 0.1
+    P = 5
+    L = 2
+    K = 1.68
+    H = 0.005
+    m = 100
+    n = 100
+    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    B = createBMatrix(n, m, L, Lx, P, delta, K)
+    print(A.shape)
+    print(B.shape)
+    V = LA.solve(A, B) + 20
+    print(V[0])
+    for m in range(10,100,10):
+        pass
+
 
 def prob5():
     print('--- Problem 5 ---')
@@ -195,4 +191,5 @@ def prob9():
 
 
 if __name__ == "__main__":
-    prob3()
+    # prob3()
+    prob4()
