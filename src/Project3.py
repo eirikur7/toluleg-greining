@@ -120,9 +120,10 @@ def solveSys(m, n):
     L = 2
     K = 1.68
     H = 0.005
-    A, tDic = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, L, Lx, P, delta, K)
-    return A, B, tDic
+    V = LA.solve(A, B) + 20
+    return A, B, V
 
 #-----------------------Problems-----------------------#
 def prob1():
@@ -197,8 +198,7 @@ def prob4():
     print('--- Problem 4 ---')
 
     # reference solution
-    A_ref, B_ref, tDic_ref = solveSys(100, 100)
-    V_ref = LA.solve(A_ref, B_ref)
+    A_ref, B_ref, V_ref = solveSys(100, 100)
 
     # Solve the system for different values of m and n, each time 9^2 times
     # Each time compute the deviation from the reference and save the answers 
@@ -206,11 +206,10 @@ def prob4():
     deviations = {(10,10): {'dev':float('inf'), 'time':float('inf')}}
     minDevKey = (10,10)
     minTimeKey = (10,10)
-    for n in range(10,90,10):
-        for m in range(10,90,10):
+    for n in range(10,91,10):
+        for m in range(10,91,10):
             start_time = time.time()
-            A, B, tDic = solveSys(m, n)
-            V = LA.solve(A, B)
+            A, B, V = solveSys(m, n)
 
             # Compute the deviation from the reference solution
             dev = abs(V_ref[0] - V[0])
@@ -228,9 +227,27 @@ def prob4():
                     minTimeKey = (m,n)
 
     # Print all the results sorted by deviation
-    # print('--- Sorted by deviation ---')
-    # for key in sorted(deviations, key=lambda x: deviations[x]['dev']):
-    #     print('m={}, n={}, deviation={}, time={}'.format(key[0], key[1], deviations[key]['dev'], deviations[key]['time']))
+    print('--- Sorted by deviation ---')
+    for key in sorted(deviations, key=lambda x: deviations[x]['dev']):
+        print('m={}, n={}, deviation={}, time={}'.format(key[0], key[1], deviations[key]['dev'], deviations[key]['time']))
+
+    # Make a 3D plot where the x-axis is m and the y-axis is n and the z-axis is the deviation.
+    # The color of the point is the time it took to solve the system.
+    # The colorbar shows the time it took to solve the system.
+
+    # Create the plot
+    fig, ax = plt.subplots()
+    ax.set_title('Minimum deviation: m={}, n={}, deviation={}, time={}\nMinimum time: m={}, n={}, deviation={}, time={}'.format(minDevKey[0], minDevKey[1], deviations[minDevKey]['dev'], deviations[minDevKey]['time'], minTimeKey[0], minTimeKey[1], deviations[minTimeKey]['dev'], deviations[minTimeKey]['time']))
+    ax.set_xlabel('m')
+    ax.set_ylabel('n')
+    ax.set_zlabel('deviation')
+    ax.scatter([key[0] for key in deviations], [key[1] for key in deviations], [deviations[key]['dev'] for key in deviations], c=[deviations[key]['time'] for key in deviations], cmap='coolwarm')
+    fig.colorbar(ax.collections[0])
+    plt.show()
+    
+
+
+
 
     # plot the results where the x-axis is m and the y-axis is the deviation.
     # The color of the point is the value of n.
@@ -241,29 +258,29 @@ def prob4():
     # The color of the point is the value of n.
 
     # Create the plot
-    fig, ax = plt.subplots()
-    # ax.set_title('Minimum deviation: m={}, n={}, deviation={}, time={}\nMinimum time: m={}, n={}, deviation={}, time={}'.format(minDevKey[0], minDevKey[1], deviations[minDevKey]['dev'], deviations[minDevKey]['time'], minTimeKey[0], minTimeKey[1], deviations[minTimeKey]['dev'], deviations[minTimeKey]['time']))
-    ax.set_xlabel('m')
-    ax.set_ylabel('deviation')
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 0.01)
+    # fig, ax = plt.subplots()
+    # # ax.set_title('Minimum deviation: m={}, n={}, deviation={}, time={}\nMinimum time: m={}, n={}, deviation={}, time={}'.format(minDevKey[0], minDevKey[1], deviations[minDevKey]['dev'], deviations[minDevKey]['time'], minTimeKey[0], minTimeKey[1], deviations[minTimeKey]['dev'], deviations[minTimeKey]['time']))
+    # ax.set_xlabel('m')
+    # ax.set_ylabel('deviation')
+    # ax.set_xlim(0, 100)
+    # ax.set_ylim(0, 0.01)
 
-    # Create the scatter plot
-    x = []
-    y = []
-    c = []
-    s = []
-    for key in deviations:
-        x.append(key[0])
-        y.append(deviations[key]['dev'])
-        c.append(key[1])
-        s.append(deviations[key]['time']*1000)
+    # # Create the scatter plot
+    # x = []
+    # y = []
+    # c = []
+    # s = []
+    # for key in deviations:
+    #     x.append(key[0])
+    #     y.append(deviations[key]['dev'])
+    #     c.append(key[1])
+    #     s.append(deviations[key]['time']*1000)
 
-    ax.scatter(x, y, c=c, s=s, cmap='viridis')
-    fig.colorbar(ax.collections[0], label='n')
-    plt.savefig(PLOT_PATH.format('problem4'))
+    # ax.scatter(x, y, c=c, s=s, cmap='viridis')
+    # fig.colorbar(ax.collections[0], label='n')
+    # plt.show()
 
-    
+
 
 
 
