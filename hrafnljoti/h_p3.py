@@ -3,7 +3,7 @@ from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
-def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
+def createAMatrix(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*n))
     hx = Lx/(m - 1)
     hy = Ly/(n -1)
@@ -41,7 +41,7 @@ def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
 
 
 
-def createAMatrix(n, m, L, Lx, Ly, H, K, delta):
+def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m+1, m*m+1))
     hx = Lx/(m- 1)
     hy = Ly/(n -1 )
@@ -172,10 +172,58 @@ def prob3():
     #     print()
 
 
+def prob4():
+    Lx = 2
+    Ly = 2
+    delta = 0.1
+    P = 5
+    L = 2
+    K = 1.68
+    H = 0.005
+    compareIndex = 0
+    totalValues = 9
+    nmMatrix = np.zeros((totalValues, totalValues))
+    V_ref = LA.solve(createAMatrix(100, 100, L, Lx, Ly, H, K, delta), createBMatrix(100, 100, L, Lx, P, delta, K))
+    V_ref_compare = V_ref[0]
+    # nmMatrix[10,10] = V100[compareIndex]
+
+    for i in range(totalValues):
+        for ii in range(totalValues):
+            n = 10*(i + 1)
+            m = 10*(ii + 1)
+            V = LA.solve(createAMatrix(n, m, L, Lx, Ly, H, K, delta), createBMatrix(n, m, L, Lx, P, delta, K))
+            nmMatrix[i, ii] = V[compareIndex] - V_ref_compare
+            print("m={}, n={}: V[0]={:.2f}, diff={:.2f}".format(m, n, V[compareIndex, 0], nmMatrix[i, ii]))
+    
+    # error_array = np.zeros((totalValues**2,1))
+    # for i in range(totalValues):
+    #     for ii in range(totalValues):
+    #         eq = ii + (i*totalValues)
+    #         error_array[eq,0] = nmMatrix[i, ii] - V_ref_compare
+
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    allM = np.linspace(0, totalValues*10, totalValues)
+    allN = np.linspace(0, totalValues*10, totalValues)
+    M1, N1 = np.meshgrid(allM, allN)
+    print(M1.shape)
+    print(N1.shape)
+    ax.plot_surface(M1, N1, nmMatrix, cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel(xlabel='M')
+    ax.set_ylabel(ylabel='N')
+    ax.set_zlabel(zlabel='Deviation in (0,0)[°C]')
+    plt.show()
+
+     
+    
+        
+
 
 
 
 
 
 if __name__ == "__main__":
-    prob3()
+    # prob3()
+    prob4()
