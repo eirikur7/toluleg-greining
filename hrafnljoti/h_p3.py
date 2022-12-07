@@ -1,8 +1,9 @@
 import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
-def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
+def createAMatrix(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*n))
     hx = Lx/(m - 1)
     hy = Ly/(n -1)
@@ -14,40 +15,33 @@ def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr - m]   = 4
                 A[eqNr, eqNr - 2*m] = -1
-                testDic["Top"] = (i, j)
             elif(( j==0 ) and (i != 0) and (i != (m-1))):  #Bottom
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr + m]   = 4
                 A[eqNr, eqNr + 2*m] = -1
-                testDic["Bottom"] = (i, j)
             elif(( i==(m-1) )):                                 #Right
                 A[eqNr, eqNr] = ((-2*hx*H)/K) + 3
                 A[eqNr, eqNr - 1] = -4
                 A[eqNr, eqNr - 2] = 1
-                testDic["Right"] = (i, j)
             elif((i==0) and ( (Lx-L - (hx*i))>0 )):             #Left
                 A[eqNr, eqNr] = ((2*hx*H)/K) - 3
                 A[eqNr, eqNr + 1] = 4
                 A[eqNr, eqNr + 2] = -1
-                testDic["Left"] = (i, j)
             elif(i==0):                                         #Power
                 A[eqNr, eqNr] = 3
                 A[eqNr, eqNr + 1] = -4
                 A[eqNr, eqNr + 2] = 1
-                testDic["Power"] = (i, j)
             else:                                               #Base Plate
                 A[eqNr, eqNr] = -2*((H/(K*delta)) + (1/(hx**2)) + (1/(hy**2)))#-(2*(hy**2)) - (2*(hx**2)) - ( ((hx**2)*(hy**2)*2*H)/(K*delta) )
                 A[eqNr, eqNr-1] = 1/(hx**2)
                 A[eqNr, eqNr+1] = 1/(hx**2)
                 A[eqNr, eqNr+m] = 1/(hy**2)
                 A[eqNr, eqNr-m] = 1/(hy**2)
-                testDic["Plate"] = (i, j)
-    # print(A)
-    return A, testDic
+    return A
 
 
 
-def createAMatrix(n, m, L, Lx, Ly, H, K, delta):
+def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m+1, m*m+1))
     hx = Lx/(m- 1)
     hy = Ly/(n -1 )
@@ -109,9 +103,6 @@ def createBMatrix(n, m, L,Lx, P, delta, K): #Needs to be fixed for the future
 
     return B
 
-
-
-
 def prob3():
     Lx = 2
     Ly = 2
@@ -122,8 +113,33 @@ def prob3():
     H = 0.005
     m = 10
     n = 10
-    A,tDic = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, L, Lx, P, delta, K)
+    print(A.shape)
+    print(B.shape)
+    V = LA.solve(A, B) + 20
+    print(V[0])
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    x = np.linspace(0, Lx, m)
+    xAll = np.zeros((n*m, 1))
+    for i in range(n):
+        xAll[i*m:(m*i+m), 0] = x
+
+    print(xAll)
+    y = np.linspace(0, Ly, n)
+    X1, Y1 = np.meshgrid(x, y)
+    hy = 1/(n-1)
+    yAll = np.zeros((n*m, 1))
+    for i in range(m):
+        yAll[i*n:(n*i+n), 0] = [hy*i]*n
+    print(xAll.shape)
+    print(yAll.shape)
+    print(V.shape)
+    ax.scatter3D(xAll, yAll, V)
+    ax.plot_surface(xAll, yAll, V)
+    plt.show()
 
     # for j in range(n):
     #         for i in range(m):
@@ -155,13 +171,59 @@ def prob3():
     #     print("{}. {}".format(j, tempStr))
     #     print()
 
-    V = LA.solve(A, B)
-    # print(V)
-    print(V[0])
+
+def prob4():
+    Lx = 2
+    Ly = 2
+    delta = 0.1
+    P = 5
+    L = 2
+    K = 1.68
+    H = 0.005
+    compareIndex = 0
+    totalValues = 9
+    nmMatrix = np.zeros((totalValues, totalValues))
+    V_ref = LA.solve(createAMatrix(100, 100, L, Lx, Ly, H, K, delta), createBMatrix(100, 100, L, Lx, P, delta, K))
+    V_ref_compare = V_ref[0]
+    # nmMatrix[10,10] = V100[compareIndex]
+
+    for i in range(totalValues):
+        for ii in range(totalValues):
+            n = 10*(i + 1)
+            m = 10*(ii + 1)
+            V = LA.solve(createAMatrix(n, m, L, Lx, Ly, H, K, delta), createBMatrix(n, m, L, Lx, P, delta, K))
+            nmMatrix[i, ii] = V[compareIndex] - V_ref_compare
+            print("m={}, n={}: V[0]={:.2f}, diff={:.2f}".format(m, n, V[compareIndex, 0], nmMatrix[i, ii]))
+    
+    # error_array = np.zeros((totalValues**2,1))
+    # for i in range(totalValues):
+    #     for ii in range(totalValues):
+    #         eq = ii + (i*totalValues)
+    #         error_array[eq,0] = nmMatrix[i, ii] - V_ref_compare
+
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    allM = np.linspace(0, totalValues*10, totalValues)
+    allN = np.linspace(0, totalValues*10, totalValues)
+    M1, N1 = np.meshgrid(allM, allN)
+    print(M1.shape)
+    print(N1.shape)
+    ax.plot_surface(M1, N1, nmMatrix, cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel(xlabel='M')
+    ax.set_ylabel(ylabel='N')
+    ax.set_zlabel(zlabel='Deviation in (0,0)[°C]')
+    plt.show()
+
+     
+    
+        
+
 
 
 
 
 
 if __name__ == "__main__":
-    prob3()
+    # prob3()
+    prob4()
