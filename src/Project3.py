@@ -168,12 +168,31 @@ def prob3():
     # print(V)
     print(V[0]+20)
 
+def prob4():
+    print('--- Problem 4 ---')
+    print('Not implemented')
 
+def prob5():
+    print('--- Problem 5 ---')
+    print('Not implemented')
+
+def prob6():
+    print('--- Problem 6 ---')
+    print('Not implemented')
+
+def prob7():
+    print('--- Problem 7 ---')
+    print('Not implemented')
+
+def prob8():
+    print('--- Problem 8 ---')
+    print('Not implemented')
+
+def prob9():
+    print('--- Problem 9 ---')
+    print('Not implemented')
 
 
 
 if __name__ == "__main__":
     prob3()
-def prob4():
-    print('--- Problem 4 ---')
-    print('Not implemented')
