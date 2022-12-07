@@ -3,20 +3,20 @@ from numpy import linalg as LA
 import matplotlib.pyplot as plt
 
 def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
-    A = np.zeros((n*m, m*m))
+    A = np.zeros((n*m, m*n))
     hx = Lx/(m - 1)
     hy = Ly/(n -1)
     testDic = {}
     for j in range(n):
         for i in range(m):
             eqNr = i + j*m
-            if((j==0) and (i != 0) and (i != (m-1))):     #Top
-                A[eqNr, eqNr]       = ((2*hy*H)/K) + 3
+            if((j==(0)) and (i != 0) and (i != (m-1))):     #Top
+                A[eqNr, eqNr]       = ((-2*hy*H)/K) + 3
                 A[eqNr, eqNr + m]   = -4
                 A[eqNr, eqNr + 2*m] = 1
                 testDic["Top"] = (i, j)
             elif(( j==(n-1) ) and (i != 0) and (i != (m-1))):  #Bottom
-                A[eqNr, eqNr]       = ((-2*hy*H)/K) - 3
+                A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 # if((eqNr + m ) <= (m*n-1)):
                 A[eqNr, eqNr - m]   = 4
                 # if((eqNr + 2*m ) <= (m*n-1)):
