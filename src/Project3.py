@@ -1,8 +1,15 @@
 import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
+import matplotlib
 import matplotlib.cm as cm
 import time
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
+import numpy as np
 
 ANIMATION_TEXT = "Generating animation..."
 PLOT_TEXT = "Generating plot..."
@@ -136,20 +143,20 @@ def prob2():
 
 
 def prob3():
-    Lx = 2
-    Ly = 2
-    delta = 0.1
-    P = 5
-    L = 2
-    K = 1.68
-    H = 0.005
-    m = 10
-    n = 10
-    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
-    B = createBMatrix(n, m, L, Lx, P, delta, K)
+    # Lx = 2
+    # Ly = 2
+    # delta = 0.1
+    # P = 5
+    # L = 2
+    # K = 1.68
+    # H = 0.005
+    # m = 10
+    # n = 10
+    # A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    # B = createBMatrix(n, m, L, Lx, P, delta, K)
+    A, B, V = solveSys(10, 10)
     print(A.shape)
     print(B.shape)
-    V = LA.solve(A, B) + 20
     print(V[0])
 
     fig = plt.figure()
@@ -200,90 +207,71 @@ def prob4():
     # reference solution
     A_ref, B_ref, V_ref = solveSys(100, 100)
 
-    # Solve the system for different values of m and n, each time 9^2 times
-    # Each time compute the deviation from the reference and save the answers 
-    # in a matrix. 
+    # dictionary to store deviations and execution times
     deviations = {(10,10): {'dev':float('inf'), 'time':float('inf')}}
-    minDevKey = (10,10)
-    minTimeKey = (10,10)
-    for n in range(10,91,10):
-        for m in range(10,91,10):
-            start_time = time.time()
-            A, B, V = solveSys(m, n)
+    nArr = range(10,91,10)  # 10, 20, 30, ..., 90
+    mArr = range(10,91,10)  # 10, 20, 30, ..., 90
+
+    # Loop over all combinations of m and n
+    fig = plt.figure()
+    ax = plt.axes()
+    for n in nArr:
+        for m in mArr:
+            start_time = time.time()    # start timer
+            A, B, V = solveSys(m, n)    # solve system of equations for m and n
 
             # Compute the deviation from the reference solution
             dev = abs(V_ref[0] - V[0])
-            exec_time = time.time() - start_time
+            exec_time = time.time() - start_time # stop timer
 
-            # only save if deviation is less than 0.01 and time is less than 0.5
+            deviations[(m,n)] = {'dev':dev, 'time':exec_time}   # save deviation and execution time
+
+            # only plot if deviation is less than 0.01 and time is less than 0.5
             if dev < 0.01 and exec_time < 0.5:
-                deviations[(m,n)] = {'dev':dev, 'time':exec_time}
+                # add dot to the plot
+                sc = ax.scatter(m, n, c=dev, vmin=0, vmax=0.01, cmap='coolwarm')
 
-                # Save minimun deviation
-                if dev < deviations[minDevKey]['dev']:
-                    minDevKey = (m,n)
-                # Save minimum time
-                if exec_time < deviations[minTimeKey]['time']:
-                    minTimeKey = (m,n)
-
-    # Print all the results sorted by deviation
-    print('--- Sorted by deviation ---')
-    for key in sorted(deviations, key=lambda x: deviations[x]['dev']):
-        print('m={}, n={}, deviation={}, time={}'.format(key[0], key[1], deviations[key]['dev'], deviations[key]['time']))
-
-    # Make a 3D plot where the x-axis is m and the y-axis is n and the z-axis is the deviation.
-    # The color of the point is the time it took to solve the system.
-    # The colorbar shows the time it took to solve the system.
-
-    # Create the plot
-    fig, ax = plt.subplots()
-    ax.set_title('Minimum deviation: m={}, n={}, deviation={}, time={}\nMinimum time: m={}, n={}, deviation={}, time={}'.format(minDevKey[0], minDevKey[1], deviations[minDevKey]['dev'], deviations[minDevKey]['time'], minTimeKey[0], minTimeKey[1], deviations[minTimeKey]['dev'], deviations[minTimeKey]['time']))
-    ax.set_xlabel('m')
-    ax.set_ylabel('n')
-    ax.set_zlabel('deviation')
-    ax.scatter([key[0] for key in deviations], [key[1] for key in deviations], [deviations[key]['dev'] for key in deviations], c=[deviations[key]['time'] for key in deviations], cmap='coolwarm')
-    fig.colorbar(ax.collections[0])
-    plt.show()
-    
-
-
-
-
-    # plot the results where the x-axis is m and the y-axis is the deviation.
-    # The color of the point is the value of n.
-    # The size of the point is the time it took to solve the system.
-    # The colorbar shows the value of n.
-    # The title is the minimum deviation and the minimum time.
-    # The x-axis is m and the y-axis is the deviation.
-    # The color of the point is the value of n.
-
-    # Create the plot
-    # fig, ax = plt.subplots()
-    # # ax.set_title('Minimum deviation: m={}, n={}, deviation={}, time={}\nMinimum time: m={}, n={}, deviation={}, time={}'.format(minDevKey[0], minDevKey[1], deviations[minDevKey]['dev'], deviations[minDevKey]['time'], minTimeKey[0], minTimeKey[1], deviations[minTimeKey]['dev'], deviations[minTimeKey]['time']))
-    # ax.set_xlabel('m')
-    # ax.set_ylabel('deviation')
-    # ax.set_xlim(0, 100)
-    # ax.set_ylim(0, 0.01)
-
-    # # Create the scatter plot
-    # x = []
-    # y = []
-    # c = []
-    # s = []
-    # for key in deviations:
-    #     x.append(key[0])
-    #     y.append(deviations[key]['dev'])
-    #     c.append(key[1])
-    #     s.append(deviations[key]['time']*1000)
-
-    # ax.scatter(x, y, c=c, s=s, cmap='viridis')
-    # fig.colorbar(ax.collections[0], label='n')
+    plt.colorbar(sc, label='deviation[°C]')
+    ax.set_xlabel(xlabel='M')
+    ax.set_ylabel(ylabel='N')
     # plt.show()
 
+    # Further analysis, find the best combination of m and n
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    for key in deviations:
+        m,n = key
+        dev = deviations[key]['dev']
+        exec_time = deviations[key]['time']
+        if exec_time < 0.3 and m > 20:
+            sc = ax.scatter3D(m, n, dev, c=exec_time, vmin=0, vmax=0.5, cmap='coolwarm')
+            if m == 80 and n == 40:
+                ax.scatter3D(m, n, dev, c='green', marker='o', s=100)
+            elif m == 90 and n == 30:
+                ax.scatter3D(m, n, dev, c='green', marker='o', s=100)
+            elif m == 90 and n == 40:
+                ax.scatter3D(m, n, dev, c='red', marker='x', s=100)
+    plt.colorbar(sc, label='time[s]')
+    ax.set_xlabel(xlabel='M')
+    ax.set_ylabel(ylabel='N')
+    ax.set_zlabel(zlabel='deviation[°C]')
+
+    # print the valeus of the best combination of m and n
+    print('Best combination of m and n:')
+    print(f'm=80, n=40 : deviation {deviations[(80,40)]} ')
+    print(f'm=90, n=30 : deviation {deviations[(90,30)]} ')
 
 
-
-
+    # which matters more m or n?
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    M1, N1 = np.meshgrid(mArr, nArr)
+    dev = np.matrix([deviations[key]['dev'] for key in deviations]).reshape((len(nArr),len(mArr)))
+    ax.plot_surface(M1, N1, dev, cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel(xlabel='M')
+    ax.set_ylabel(ylabel='N')
+    ax.set_zlabel(zlabel='Deviation in (0,0)[°C]')
+    plt.show()
 
 
 def prob5():
