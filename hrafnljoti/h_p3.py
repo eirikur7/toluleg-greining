@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+import time
 
 def createAMatrix(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*n))
@@ -189,11 +190,13 @@ def prob4():
 
     for i in range(totalValues):
         for ii in range(totalValues):
+            time_to_compare = time.time()
             n = 10*(i + 1)
             m = 10*(ii + 1)
             V = LA.solve(createAMatrix(n, m, L, Lx, Ly, H, K, delta), createBMatrix(n, m, L, Lx, P, delta, K))
             nmMatrix[i, ii] = V[compareIndex] - V_ref_compare
-            print("m={}, n={}: V[0]={:.2f}, diff={:.2f}".format(m, n, V[compareIndex, 0], nmMatrix[i, ii]))
+            if nmMatrix[i, ii] < 0.01 and time.time()-time_to_compare <= 0.5:
+                print("m={}, n={}: V[0]={:.2f}, diff={:.2f},time={:.2f}".format(m, n, V[compareIndex, 0], nmMatrix[i, ii], time.time()-time_to_compare))
     
     # error_array = np.zeros((totalValues**2,1))
     # for i in range(totalValues):
