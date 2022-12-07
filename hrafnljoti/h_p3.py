@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
 def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*m))
@@ -14,36 +15,29 @@ def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr - m]   = 4
                 A[eqNr, eqNr - 2*m] = -1
-                testDic["Top"] = (i, j)
             elif(( j==0 ) and (i != 0) and (i != (m-1))):  #Bottom
                 A[eqNr, eqNr]       = ((2*hy*H)/K) - 3
                 A[eqNr, eqNr + m]   = 4
                 A[eqNr, eqNr + 2*m] = -1
-                testDic["Bottom"] = (i, j)
             elif(( i==(m-1) )):                                 #Right
                 A[eqNr, eqNr] = ((-2*hx*H)/K) + 3
                 A[eqNr, eqNr - 1] = -4
                 A[eqNr, eqNr - 2] = 1
-                testDic["Right"] = (i, j)
             elif((i==0) and ( (Lx-L - (hx*i))>0 )):             #Left
                 A[eqNr, eqNr] = ((2*hx*H)/K) - 3
                 A[eqNr, eqNr + 1] = 4
                 A[eqNr, eqNr + 2] = -1
-                testDic["Left"] = (i, j)
             elif(i==0):                                         #Power
                 A[eqNr, eqNr] = 3
                 A[eqNr, eqNr + 1] = -4
                 A[eqNr, eqNr + 2] = 1
-                testDic["Power"] = (i, j)
             else:                                               #Base Plate
                 A[eqNr, eqNr] = -2*((H/(K*delta)) + (1/(hx**2)) + (1/(hy**2)))#-(2*(hy**2)) - (2*(hx**2)) - ( ((hx**2)*(hy**2)*2*H)/(K*delta) )
                 A[eqNr, eqNr-1] = 1/(hx**2)
                 A[eqNr, eqNr+1] = 1/(hx**2)
                 A[eqNr, eqNr+m] = 1/(hy**2)
                 A[eqNr, eqNr-m] = 1/(hy**2)
-                testDic["Plate"] = (i, j)
-    # print(A)
-    return A, testDic
+    return A
 
 
 
@@ -109,9 +103,6 @@ def createBMatrix(n, m, L,Lx, P, delta, K): #Needs to be fixed for the future
 
     return B
 
-
-
-
 def prob3():
     Lx = 2
     Ly = 2
@@ -122,8 +113,33 @@ def prob3():
     H = 0.005
     m = 10
     n = 10
-    A,tDic = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
+    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, L, Lx, P, delta, K)
+    print(A.shape)
+    print(B.shape)
+    V = LA.solve(A, B) + 20
+    print(V[0])
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    x = np.linspace(0, Lx, m)
+    xAll = np.zeros((n*m, 1))
+    for i in range(n):
+        xAll[i*m:(m*i+m), 0] = x
+
+    print(xAll)
+    y = np.linspace(0, Ly, n)
+    X1, Y1 = np.meshgrid(x, y)
+    hy = 1/(n-1)
+    yAll = np.zeros((n*m, 1))
+    for i in range(m):
+        yAll[i*n:(n*i+n), 0] = [hy*i]*n
+    print(xAll.shape)
+    print(yAll.shape)
+    print(V.shape)
+    ax.scatter3D(xAll, yAll, V)
+    ax.plot_surface(xAll, yAll, V)
+    plt.show()
 
     # for j in range(n):
     #         for i in range(m):
@@ -155,9 +171,7 @@ def prob3():
     #     print("{}. {}".format(j, tempStr))
     #     print()
 
-    V = LA.solve(A, B)
-    # print(V)
-    print(V[0])
+
 
 
 
