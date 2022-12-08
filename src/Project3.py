@@ -119,14 +119,14 @@ def createBMatrix(n, m, L,Lx, P, delta, K): #Needs to be fixed for the future
 
     return B
 
-def solveSys(m, n):
-    Lx = 2
-    Ly = 2
-    delta = 0.1
-    P = 5
-    L = 2
-    K = 1.68
-    H = 0.005
+def solveSys(Lx, Ly, delta, P, L, K, H, m, n):
+    # Lx = 2
+    # Ly = 2
+    # delta = 0.1
+    # P = 5
+    # L = 2
+    # K = 1.68
+    # H = 0.005
     A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, L, Lx, P, delta, K)
     V = LA.solve(A, B) + 20
