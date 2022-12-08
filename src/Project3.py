@@ -16,6 +16,7 @@ PLOT_TEXT = "Generating plot..."
 FIG_PATH = "src/figures_project3/"
 ANIMATION_PATH = FIG_PATH + "{}_animation.gif"
 PLOT_PATH = FIG_PATH + "{}_plot.png"
+PLOT_SPAN = FIG_PATH + "problem{}_({},{}).png"
 
 # ---------------------------- Helper Functions ---------------------------- #
 def createAMatrix2(n, m, L, Lx, Ly, H, K, delta):
