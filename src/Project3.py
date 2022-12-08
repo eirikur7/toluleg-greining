@@ -504,8 +504,8 @@ def prob5():
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    x = np.linspace(0, Lx, m)
-    y = np.linspace(0, Ly, n)
+    x = np.linspace(0, Lx, bestM)
+    y = np.linspace(0, Ly, bestN)
     X1, Y1 = np.meshgrid(x, y)
     ax.plot_surface(X1, Y1, V.reshape((bestN,bestM)), cmap='coolwarm', edgecolor='none')
     ax.set_xlabel(xlabel='x[cm]')
