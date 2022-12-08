@@ -119,7 +119,7 @@ def createBMatrix(n, m, L,Lx, P, delta, K): #Needs to be fixed for the future
 
     return B
 
-def solveSys(Lx, Ly, delta, P, L, K, H, m, n):
+def solveSys(Lx, Ly, delta, P, Lspan, K, H, m, n):
     # Lx = 2
     # Ly = 2
     # delta = 0.1
@@ -127,8 +127,8 @@ def solveSys(Lx, Ly, delta, P, L, K, H, m, n):
     # L = 2
     # K = 1.68
     # H = 0.005
-    A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
-    B = createBMatrix(n, m, L, Lx, P, delta, K)
+    A = createAMatrix(n, m, Lspan, Lx, Ly, H, K, delta)
+    B = createBMatrix(n, m, Lspan, Lx, P, delta, K)
     V = LA.solve(A, B) + 20
     return A, B, V
 
@@ -143,18 +143,8 @@ def prob2():
 
 
 def prob3():
-    # Lx = 2
-    # Ly = 2
-    # delta = 0.1
-    # P = 5
-    # L = 2
-    # K = 1.68
-    # H = 0.005
-    # m = 10
-    # n = 10
-    # A = createAMatrix2(n, m, L, Lx, Ly, H, K, delta)
-    # B = createBMatrix(n, m, L, Lx, P, delta, K)
-    A, B, V = solveSys(10, 10)
+    Lx, Ly, m, n = 2, 2, 10, 10
+    A, B, V = solveSys(Lx=2, Ly=2, delta=0.1, P=5, Lspan=[0,2], K=1.68, H=0.005, m=10, n=10)
     print(A.shape)
     print(B.shape)
     print(V[0])
@@ -205,7 +195,7 @@ def prob4():
     print('--- Problem 4 ---')
 
     # reference solution
-    A_ref, B_ref, V_ref = solveSys(100, 100)
+    A_ref, B_ref, V_ref = solveSys(Lx=2, Ly=2, delta=0.1, P=5, L=2, K=1.68, H=0.005, m=100, n=100)
 
     # dictionary to store deviations and execution times
     deviations = {(10,10): {'dev':float('inf'), 'time':float('inf')}}
@@ -218,7 +208,7 @@ def prob4():
     for n in nArr:
         for m in mArr:
             start_time = time.time()    # start timer
-            A, B, V = solveSys(m, n)    # solve system of equations for m and n
+            A, B, V = solveSys(Lx=2, Ly=2, delta=0.1, P=5, L=2, K=1.68, H=0.005, m=m, n=n)    # solve system of equations for m and n
 
             # Compute the deviation from the reference solution
             dev = abs(V_ref[0] - V[0])
@@ -255,6 +245,19 @@ def prob4():
     ax.set_xlabel(xlabel='M')
     ax.set_ylabel(ylabel='N')
     ax.set_zlabel(zlabel='deviation[°C]')
+
+    # calculate the slope of the deviation from m=40 to m=90
+    dev40 = deviations[(40,40)]['dev']
+    dev90 = deviations[(90,40)]['dev']
+    slope = (dev90 - dev40) / (90 - 40)
+    print(f'slope m=[40,90]: {slope}')
+
+    # calculate the slope of the deviation from n=20 to n=90
+    dev20 = deviations[(40,20)]['dev']
+    dev90 = deviations[(40,90)]['dev']
+    slope = (dev90 - dev20) / (90 - 20)
+    print(f'slope n=[20,90]: {slope}')
+
 
     # print the valeus of the best combination of m and n
     print('Best combination of m and n:')
