@@ -112,6 +112,22 @@ def createBMatrix(n, m, LSpan, Ly, P, delta, K):
 
     return B
 
+# def createBMatrixCut(cutN, cutM,n, m, LSpan, Ly, P, delta, K):
+#     B = np.zeros((m*n-(cutN*cutM), 1))
+#     hy = Ly/(n)
+#     L = LSpan[1]-LSpan[0]
+#     for j in range(n):
+#         if (((j*hy >= LSpan[0]) and (j*hy <= LSpan[1]))):
+#             B[j*m] = (P)/(L*delta*K)
+
+#     for j in range(n-cutN):
+#         for i in range(m-cutM):
+#             eq = i + j*(m-cutM)
+#             if ((i == 0) and ((j*hy >= LSpan[0]) and (j*hy <= LSpan[1]))):
+#                 B[eq] = (P)/(L*delta*K)
+        
+#     return B
+
 
 
 
@@ -129,8 +145,8 @@ def prob3():
     A = createAMatrix(n, m, LSpan, Lx, Ly, H, K, delta)
     B = createBMatrix(n, m, LSpan, Ly, P, delta, K)
     V = LA.solve(A, B) + 20
-    print(V[0])
-
+    
+    print("Temp_(0, 0) = {}, Temp_(0, Ly)".format(V[0], V[n*m]))
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     x = np.linspace(0, Lx, m)
@@ -509,20 +525,20 @@ def prob7For9(bestIndex, LSpansEnd, cutN, cutM):
     m = 10
 
     maxP = findHighestPowerBeforeLimit(100, 10**(-2), LSpan, K)
-    V = LA.solve(createAMatrix(n, m, LSpan, Lx, Ly, H, K, delta), createBMatrix(n, m, LSpan, Ly, maxP, delta, K)) + 20
-    maxTemp = np.max(V)
+    V = LA.solve(createAMatrixCut(cutN, cutM, n, m, LSpan, Lx, Ly, H, K, delta), createBMatrix(n, m, LSpan, Ly, maxP, delta, K)) + 20
+    plate, _ = getOnlyPlate(V, n, m, cutN, cutM)
+    maxTemp = np.max(plate[2])
     print("Max Power={}, maxTemp={}".format(maxP, maxTemp))
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    x = np.linspace(0, Lx, m)
-    y = np.linspace(0, Ly, n)
-    X1, Y1 = np.meshgrid(x, y)
-    ax.plot_surface(X1, Y1, V.reshape((n,m)), cmap='coolwarm', edgecolor='none')
+    for i in range(plate[2].size):
+        ax.scatter(plate[0][i], plate[1][i], plate[2][i], vmin=np.min(plate[2]), vmax=np.max(plate[2]), cmap='coolwarm', c=plate[2][i])
     ax.set_xlabel(xlabel='x[cm]')
     ax.set_ylabel(ylabel='y[cm]')
     ax.set_zlabel(zlabel='temperature[°C]')
     ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
     plt.show()
+    
 
 
 def prob9():
@@ -642,9 +658,12 @@ def test():
 
 if __name__ == "__main__":
     # prob3()
-    prob4()
+    # prob4()
     # prob5()
-    prob6()
+    # prob6()
+    prob9()
+    # m = 90
+    # n = 30
 
 
 
