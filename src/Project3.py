@@ -469,18 +469,35 @@ def prob4():
     ax.set_ylabel(ylabel='N')
     ax.set_zlabel(zlabel='deviation[°C]')
 
-    # calculate the slope of the deviation from m=40 to m=90
+    # calculate the slope of the deviation from m=10 to m=30
+    dev10 = deviations[(10,10)]['dev']
+    dev40 = deviations[(40,10)]['dev']
+    slopeM_10_40 = (dev40 - dev10) / (40 - 10)
+    print(f'slope m=[10,40]: {slopeM_10_40}')
+
+    # calculate the slope of the deviation from m=10 to n=30
+    dev10 = deviations[(10,10)]['dev']
+    dev20 = deviations[(10,20)]['dev']
+    slopeN_10_20 = (dev20 - dev10) / (20 - 10)
+    print(f'slope n=[10,20]: {slopeN_10_20}')
+
+    # calculate the slope of the deviation from m=30 to m=90
     dev40 = deviations[(40,40)]['dev']
     dev90 = deviations[(90,40)]['dev']
-    slope = (dev90 - dev40) / (90 - 40)
-    print(f'slope m=[40,90]: {slope}')
+    slopeM_40_90 = (dev90 - dev40) / (90 - 40)
+    print(f'slope m=[40,90]: {slopeM_40_90}')
 
-    # calculate the slope of the deviation from n=20 to n=90
+    # calculate the slope of the deviation from n=30 to n=90
     dev20 = deviations[(40,20)]['dev']
     dev90 = deviations[(40,90)]['dev']
-    slope = (dev90 - dev20) / (90 - 20)
-    print(f'slope n=[20,90]: {slope}')
+    slopeN_20_90 = (dev90 - dev20) / (90 - 20)
+    print(f'slope n=[20,90]: {slopeN_20_90}')
 
+    # print the ratio of the slopes from m=10 to m=30 and n=10 to n=30
+    print(f'ratio m=[10,40]/n=[10,20]: {slopeM_10_40/slopeN_10_20}')
+
+    # print the ratio of the slopes from m=30 to m=90 and n=30 to n=90
+    print(f'ratio m=[40,90]/n=[20,90]: {slopeM_40_90/slopeN_20_90}')
 
     # print the valeus of the best combination of m and n
     print('Best combination of m and n:')
