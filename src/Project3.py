@@ -636,8 +636,8 @@ def prob9():
 
 if __name__ == "__main__":
     # prob3()
-    # prob4()
+    prob4()
     # bestEnd6 = prob6(plot=False)
     # prob7(bestEnd6=bestEnd6)
-    prob8()
+    # prob8()
     # prob9()
