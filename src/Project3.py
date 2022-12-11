@@ -396,6 +396,7 @@ def prob4():
     print('--- Problem 4 ---')
 
     # reference solution
+    print("Solving the reference solution, n=m=100.")
     A_ref, B_ref, V_ref = solveSys(Lx=2, Ly=2, delta=0.1, P=5, Lspan=[0, 2], K=1.68, H=0.005, m=100, n=100)
 
     # dictionary to store deviations and execution times
@@ -404,6 +405,7 @@ def prob4():
     mArr = range(10,91,10)  # 10, 20, 30, ..., 90
 
     # Loop over all combinations of m and n
+    print("Generating all solution for n and m in {10,20,30,...,90}. Takes about 30 seconds.")
     fig = plt.figure()
     ax = plt.axes()
     for n in nArr:
@@ -492,6 +494,8 @@ def prob4():
     ax.set_xlabel(xlabel='M')
     ax.set_ylabel(ylabel='N')
     ax.set_zlabel(zlabel='Deviation in (0,0)[°C]')
+
+    print("outputting 3 plots.")
     plt.show()
 
 
