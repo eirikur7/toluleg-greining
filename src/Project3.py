@@ -380,7 +380,7 @@ def prob3():
     Lx, Ly, m, n = 2, 2, 10, 10
     A, B, V = solveSys(Lx=2, Ly=2, delta=0.1, P=5, Lspan=[0,2], K=1.68, H=0.005, m=10, n=10)
 
-    print("Temp_(0, 0) = {}, Temp_(0, Ly)".format(V[0], V[n*m]))
+    print("Temp_(0, 0) = {}, Temp_(0, Ly)".format(V[0], V[n*m-1]))
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     x = np.linspace(0, Lx, m)
