@@ -22,6 +22,15 @@ bestN = 30
 bestM = 90
 
 # ---------------------------- Helper Functions ---------------------------- #
+def getInput(print_str, available_inputs):
+    """Gets input from user and checks if it is valid"""
+    while True:
+        user_input = input(print_str)
+        if user_input.lower() not in available_inputs:
+            print("Invalid input, try again")
+        else:
+            return user_input
+
 def createAMatrix(n, m, LSpan, Lx, Ly, H, K, delta):
     A = np.zeros((n*m, m*n))
     hx = Lx/(m - 1)
@@ -325,17 +334,17 @@ def prob6For9(cutN, cutM, plot=True):
     ax2.set_ylabel("Max Temperature[◦C]")
     plt.show()
 
-    # fig = plt.figure()
-    # ax = plt.axes(projection='3d')
-    # for ii in range(plate[2].size):
-    #     ax.scatter(plate[0][ii], plate[1][ii], plate[2][ii], vmin=np.min(plate[2]), vmax=np.max(plate[2]), cmap='coolwarm', c=plate[2][ii])
-    # ax.set_xlabel(xlabel='x[cm]')
-    # ax.set_ylabel(ylabel='y[cm]')
-    # ax.set_zlabel(zlabel='temperature[°C]')
-    # ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
-    # fig.savefig(PLOT_SPAN.format("9_best", LSpan[0], LSpan[1]))
-    # print("Best span: [{}, {}]: maxTemp = {}".format(LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex], maxTemp[bestIndex]))
-    # plt.show()
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    for ii in range(plate[2].size):
+        ax.scatter(plate[0][ii], plate[1][ii], plate[2][ii], vmin=np.min(plate[2]), vmax=np.max(plate[2]), cmap='coolwarm', c=plate[2][ii])
+    ax.set_xlabel(xlabel='x[cm]')
+    ax.set_ylabel(ylabel='y[cm]')
+    ax.set_zlabel(zlabel='temperature[°C]')
+    ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
+    fig.savefig(PLOT_SPAN.format("9_best", LSpan[0], LSpan[1]))
+    print("Best span: [{}, {}]: maxTemp = {}".format(LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex], maxTemp[bestIndex]))
+    plt.show()
     
     return LSpansEnd[bestIndex]
 
@@ -382,37 +391,6 @@ def prob3():
     ax.set_ylabel(ylabel='y[cm]')
     ax.set_zlabel(zlabel='temperature[°C]')
     plt.show()
-
-    # for j in range(n):
-    #         for i in range(m):
-    #             eq = i + j*m
-    #             eq2 = eq + m*(m-j-1)
-    #             for ii in range(m*n):
-    #                 if A[eq2,ii] >= 0:
-    #                     print(" ", end="")
-    #                 print(f"{A[eq2,ii]:.0f}", end=" ")
-    #             print()
-    # for key in tDic:
-    #     x,y = tDic[key]
-    #     eqNr = x + m*y
-    #     print("-------------------------{}-------------------".format(key))
-    #     print("x={},y={}".format(x,y))
-    #     for j in range(n):
-    #         for i in range(m):
-    #             print(A[eqNr, i + j*m],end="| ")
-    #         print()
-    #     print('----------------------------------------------')
-
-
-    # print(A.shape)
-    # print(B)
-    # for j in range(m*n):
-    #     tempStr = ""
-    #     for i in range(m*n):
-    #         tempStr += str(A[j, i]) + " "
-    #     print("{}. {}".format(j, tempStr))
-    #     print()
-
 
 def prob4():
     print('--- Problem 4 ---')
@@ -563,29 +541,32 @@ def prob6(plot=True):
         # plt.show()
 
     bestIndex = np.argmin(maxTemp)
-    LSpan = [LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex]]
-    A, B, V = solveSys(Lx=Lx, Ly=Ly, delta=delta, P=P, Lspan=LSpan, K=K, H=H, m=bestM, n=bestN)
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    x = np.linspace(0, Lx, bestM)
-    y = np.linspace(0, Ly, bestN)
-    X1, Y1 = np.meshgrid(x, y)
-    ax.plot_surface(X1, Y1, V.reshape((bestN,bestM)), cmap='coolwarm', edgecolor='none')
-    ax.set_xlabel(xlabel='x[cm]')
-    ax.set_ylabel(ylabel='y[cm]')
-    ax.set_zlabel(zlabel='temperature[°C]')
-    ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
-    # fig.savefig("hrafnljoti/proj3Fig/prob6_[{:.3f}, {:.3f}].png".format(LSpan[0], LSpan[1]))
-    fig.savefig(PLOT_SPAN.format("6_best", LSpan[0], LSpan[1]))
-    print("Best span: [{}, {}]: maxTemp = {}".format(LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex], maxTemp[bestIndex]))
     
-    fig2, ax2 = plt.subplots(1,1)
-    print()
-    ax2.plot(LSpansEnd, maxTemp, 'b-')
-    ax2.plot(LSpansEnd, maxTemp, 'r*')
-    ax2.set_xlabel("End Span[cm]")
-    ax2.set_ylabel("Max Temperature[◦C]")
-    plt.show()
+    if plot:
+        LSpan = [LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex]]
+        A, B, V = solveSys(Lx=Lx, Ly=Ly, delta=delta, P=P, Lspan=LSpan, K=K, H=H, m=bestM, n=bestN)
+        fig = plt.figure()
+        ax = plt.axes(projection='3d')
+        x = np.linspace(0, Lx, bestM)
+        y = np.linspace(0, Ly, bestN)
+        X1, Y1 = np.meshgrid(x, y)
+        ax.plot_surface(X1, Y1, V.reshape((bestN,bestM)), cmap='coolwarm', edgecolor='none')
+        ax.set_xlabel(xlabel='x[cm]')
+        ax.set_ylabel(ylabel='y[cm]')
+        ax.set_zlabel(zlabel='temperature[°C]')
+        ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
+        # fig.savefig("hrafnljoti/proj3Fig/prob6_[{:.3f}, {:.3f}].png".format(LSpan[0], LSpan[1]))
+        fig.savefig(PLOT_SPAN.format("6_best", LSpan[0], LSpan[1]))
+        print("Best span: [{}, {}]: maxTemp = {}".format(LSpansEnd[bestIndex]-L, LSpansEnd[bestIndex], maxTemp[bestIndex]))
+        
+        fig2, ax2 = plt.subplots(1,1)
+        print()
+        ax2.plot(LSpansEnd, maxTemp, 'b-')
+        ax2.plot(LSpansEnd, maxTemp, 'r*')
+        ax2.set_xlabel("End Span[cm]")
+        ax2.set_ylabel("Max Temperature[◦C]")
+        fig2.savefig(PLOT_PATH.format('6_temp'))
+        plt.show()
     return LSpansEnd[bestIndex] #bestIndex, LSpansEnd
 
 def prob7(bestEnd6 = 3):
@@ -609,6 +590,7 @@ def prob7(bestEnd6 = 3):
     ax.set_ylabel(ylabel='y[cm]')
     ax.set_zlabel(zlabel='temperature[°C]')
     # ax.set_title("Span:[{:.3f}, {:.3f}]".format(LSpan[0], LSpan[1]))
+    fig.savefig(PLOT_PATH.format('problem7'))
     plt.show()
 
 def prob8(bestEnd6 = 3):
@@ -664,8 +646,37 @@ def prob10(bestEnd6 = 3):
 if __name__ == "__main__":
     # prob3()
     # prob4()
-    bestEnd6 = prob6(plot=False)
-    prob7(bestEnd6=bestEnd6)
+    # bestEnd6 = prob6(plot=False)
+    # prob7(bestEnd6=3)
     # prob8()
     # prob9()
     # prob10()
+    question_string = "Which question would you like to run (1-13, q to quit): "
+    question_available = [str(i) for i in range(1,13)] + ["q"]
+    question = getInput(question_string, question_available)
+    while True:
+        if question == "q":
+            break
+        elif question == "1":
+            prob1()
+        elif question == "2":
+            prob2()
+        elif question == "3":
+            prob3()
+        elif question == "4":
+            prob4()
+        elif question == "5":
+            prob5()
+        elif question == "6":
+            prob6()
+        elif question == "7":
+            prob7(bestEnd6=3)
+        elif question == "8":
+            prob8()
+        elif question == "9":
+            prob9()
+        elif question == "10":
+            prob10()
+        else:
+            print("Invalid input")
+        question = getInput(question_string, question_available)
