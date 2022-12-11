@@ -616,7 +616,7 @@ def prob9():
     cutM = 36 #90
     cutN = 6 #30
 
-    # bestEnd6 = prob6For9(cutN, cutM, plot=False)
+    bestEnd6 = prob6For9(cutN, cutM, plot=False)
     # prob7For9(bestEnd6=bestEnd6, cutN=cutN, cutM=cutM)
     prob7For9(bestEnd6=3, cutN=cutN, cutM=cutM)
 
